@@ -1,0 +1,2082 @@
+title,link,pubDate,description,analysis
+"""curly brackets ({})"" in French",https://lingopolo.org/french/word/curly-brackets,,"Summary The French translation for “curly brackets ({})” is accolades .
+
+Examples of ""curly brackets ({})"" in use
+
+There is 1 example of the French word for ""curly brackets ({})"" being used:",
+129405 results for curly brackets in all,https://stock.adobe.com/search?k=curly+brackets,,Электронное письмо с подтверждением и ссылкой для установки пароля отправлено по адресу Для доступа к покупкам в будущем вам понадобится пароль.,
+5499 Curly Braces Royalty-Free Photos and Stock Images,https://www.shutterstock.com/search/curly-braces,,,
+All about {Curly Braces} in Bash,https://www.linux.com/topic/desktop/all-about-curly-braces-bash/,26 февр. 2019 г.,"At this stage of our Bash basics series, it would be hard not to see some crossover between topics. For example, you have already seen a lot of brackets in the examples we have shown over the past several weeks, but the focus has been elsewhere.
+
+For the next phase of the series, we’ll take a closer look at brackets, curly, curvy, or straight, how to use them, and what they do depending on where you use them. We will also tackle other ways of enclosing things, like when to use quotes, double-quotes, and backquotes.
+
+This week, we’re looking at curly brackets or braces: {} .
+
+Array Builder
+
+You have already encountered curly brackets before in The Meaning of Dot. There, the focus was on the use of the dot/period ( . ), but using braces to build a sequence was equally important.
+
+As we saw then:
+
+echo {0..10}
+
+prints out the numbers from 0 to 10. Using:
+
+echo {10..0}
+
+prints out the same numbers, but in reverse order. And,
+
+echo {10..0..2}
+
+prints every second number, starting with 10 and making its way backwards to 0.
+
+Then,
+
+echo {z..a..2}
+
+prints every second letter, starting with z and working its way backwards until a.
+
+And so on and so forth.
+
+Another thing you can do is combine two or more sequences:
+
+echo {a..z}{a..z}
+
+This prints out all the two letter combinations of the alphabet, from aa to zz.
+
+Is this useful? Well, actually it is. You see, arrays in Bash are defined by putting elements between parenthesis () and separating each element using a space, like this:
+
+month=(""Jan"" ""Feb"" ""Mar"" ""Apr"" ""May"" ""Jun"" ""Jul"" ""Aug"" ""Sep"" ""Oct"" ""Nov"" ""Dec"")
+
+To access an element within the array, you use its index within brackets [] :
+
+$ echo ${month[3]} # Array indexes start at [0], so [3] points to the fourth item Apr
+
+You can accept all those brackets, parentheses, and braces on faith for a moment. We’ll talk about them presently.
+
+Notice that, all things being equal, you can create an array with something like this:
+
+letter_combos=({a..z}{a..z})
+
+and letter_combos points to an array that contains all the 2-letter combinations of the entire alphabet.
+
+You can also do this:
+
+dec2bin=({0..1}{0..1}{0..1}{0..1}{0..1}{0..1}{0..1}{0..1})
+
+This last one is particularly interesting because dec2bin now contains all the binary numbers for an 8-bit register, in ascending order, starting with 00000000, 00000001, 00000010, etc., until reaching 11111111. You can use this to build yourself an 8-bit decimal-to-binary converter. Say you want to know what 25 is in binary. You can do this:
+
+$ echo ${dec2bin[25]} 00011001
+
+Yes, there are better ways of converting decimal to binary as we saw in the article where we discussed & as a logical operator, but it is still interesting, right?
+
+Parameter expansion
+
+Getting back to
+
+echo ${month[3]}
+
+Here the braces {} are not being used as apart of a sequence builder, but as a way of generating parameter expansion. Parameter expansion involves what it says on the box: it takes the variable or expression within the braces and expands it to whatever it represents.
+
+In this case, month is the array we defined earlier, that is:
+
+month=(""Jan"" ""Feb"" ""Mar"" ""Apr"" ""May"" ""Jun"" ""Jul"" ""Aug"" ""Sep"" ""Oct"" ""Nov"" ""Dec"")
+
+And, item 3 within the array points to ""Apr"" (remember: the first index in an array in Bash is [0] ). That means that echo ${month[3]} , after the expansion, translates to echo ""Apr"" .
+
+Interpreting a variable as its value is one way of expanding it, but there are a few more you can leverage. You can use parameter expansion to manipulate what you read from variable, say, by cutting a chunk off the end.
+
+Suppose you have a variable like:
+
+a=""Too longgg""
+
+The command:
+
+echo ${a%gg}
+
+chops off the last two gs and prints “Too long“.
+
+Breaking this down,
+
+${...} tells the shell to expand whatever is inside it
+
+tells the shell to expand whatever is inside it a is the variable you are working with
+
+is the variable you are working with % tells the shell you want to chop something off the end of the expanded variable (“Too longgg”)
+
+tells the shell you want to chop something off the end of the expanded variable (“Too longgg”) and gg is what you want to chop off.
+
+This can be useful for converting files from one format to another. Allow me to explain with a slight digression:
+
+ImageMagick is a set of command line tools that lets you manipulate and modify images. One of its most useful tools ImageMagick comes with is convert . In its simplest form convert allows you to, given an image in a certain format, make a copy of it in another format.
+
+The following command takes a JPEG image called image.jpg and creates a PNG copy called image.png:
+
+convert image.jpg image.png
+
+ImageMagick is often pre-installed on most Linux distros. If you can’t find it, look for it in your distro’s software manager.
+
+Okay, end of digression. On to the example:
+
+With variable expansion, you can do the same as shown above like this:
+
+i=image.jpg convert $i ${i%jpg}png
+
+What you are doing here is chopping off the extension jpg from i and then adding png , making the command convert image.jpg image.png .
+
+You may be wondering how this is more useful than just writing in the name of the file. Well, when you have a directory containing hundreds of JPEG images, you need to convert to PNG, run the following in it:
+
+for i in *.jpg; do convert $i ${i%jpg}png; done
+
+… and, hey presto! All the pictures get converted automatically.
+
+If you need to chop off a chunk from the beginning of a variable, instead of % , use # :
+
+$ a=""Hello World!"" $ echo Goodbye${a#Hello} Goodbye World!
+
+There’s quite a bit more to parameter expansion, but a lot of it makes sense only when you are writing scripts. We’ll explore more on that topic later in this series.
+
+Output Grouping
+
+Meanwhile, let’s finish up with something simple: you can also use { ... } to group the output from several commands into one big blob. The command:
+
+echo ""I found all these PNGs:""; find . -iname ""*.png""; echo ""Within this bunch of files:""; ls > PNGs.txt
+
+will execute all the commands but will only copy into the PNGs.txt file the output from the last ls command in the list. However, doing
+
+{ echo ""I found all these PNGs:""; find . -iname ""*.png""; echo ""Within this bunch of files:""; ls; } > PNGs.txt
+
+creates the file PNGs.txt with everything, starting with the line “I found all these PNGs:“, then the list of PNG files returned by find , then the line “Within this bunch of files:” and finishing up with the complete list of files and directories within the current directory.
+
+Notice that there is space between the braces and the commands enclosed within them. That’s because { and } are reserved words here, commands built into the shell. They would roughly translate to “group the outputs of all these commands together” in plain English.
+
+Also notice that the list of commands has to end with a semicolon ( ; ) or the whole thing will bork.
+
+Next Time
+
+In our next installment, we’ll be looking at more things that enclose other things, but of different shapes. Until then, have fun!
+
+Read more:
+
+And, Ampersand, and & in Linux
+
+Ampersands and File Descriptors in Bash
+
+Logical & in Bash",
+Arrow functions don't always use curly braces though.,https://teamtreehouse.com/community/arrow-functions-dont-always-use-curly-braces-though,18 июн. 2021 г.,"I'll add on to Blake's great explanation in order to address your .map question:
+
+const users = userNames . filter ( name => user . name !== ""Samir"" ) . map ( name => ({ name }));
+
+is the same as
+
+const users = userNames . filter ( name => user . name !== ""Samir"" ) . map ( name => { return { name : name }; });
+
+The first code snippet is just using some shorthand syntax.
+
+Shorthand Part 1: { name }
+
+Creating an object property and setting it equal to a variable with the same name is pretty common, so JavaScript ES6 provides a shortcut to do that.
+
+const dog = 'Woof' ; // this... const myPet = { dog : dog }; // { dog: 'Woof' } // ...is the same as: const yourPet = { dog }; // { dog: 'Woof' }
+
+Shorthand Part 2: Parentheses ({ name })
+
+The parentheses around { name } tell the arrow function to return it as an object with the property name . Without the parentheses, JS assumes you're just creating a function that doesn't do anything, like this
+
+. map ( name => { name // yes, this is a variable, but we're not returning it, so it doesn't do anything });
+
+Hope this helps. Also, while syntax shortcuts are handy, I often choose to write out the longer version to make it easier for another developer to look at my code and quickly grasp what's going on. Code readability is more important than making the function happen in as few lines as possible.",
+Bracket,https://en.wikipedia.org/wiki/Bracket,,"Punctuation mark
+
+This article is about the family of punctuation marks. For other uses, see Bracket (disambiguation)
+
+Brackets ( ) [ ] { } ⟨ ⟩ Brackets (BE)
+
+or
+
+parentheses (AE)
+
+or
+
+round brackets (BE) Brackets (AE)
+
+or
+
+square brackets (BE) Braces (BE&AE)
+
+or
+
+curly brackets (BE) Angle brackets (BE&AE)
+
+or
+
+chevrons [2]
+
+A bracket is either of two tall fore- or back-facing punctuation marks commonly used to isolate a segment of text or data from its surroundings. They come in four main pairs of shapes, as given in the box to the right, which also gives their names, that vary between British and American English. ""Brackets"", without further qualification, are in British English the (…) marks and in American English the […] marks.
+
+Other minor bracket shapes exist, such as (for example) slash or diagonal brackets used by linguists to enclose phonemes.
+
+Brackets are typically deployed in symmetric pairs, and an individual bracket may be identified as a 'left' or 'right' bracket or, alternatively, an ""opening bracket"" or ""closing bracket"",[5] respectively, depending on the directionality of the context.
+
+In casual writing and in technical fields such as computing or linguistic analysis of grammar, brackets nest, with segments of bracketed material containing embedded within them other further bracketed sub-segments. The number of opening brackets matches the number of closing brackets in such cases.
+
+Various forms of brackets are used in mathematics, with specific mathematical meanings, often for denoting specific mathematical functions and subformulas.
+
+History [ edit ]
+
+Angle brackets or chevrons ⟨ ⟩ were the earliest type of bracket to appear in written English. Erasmus coined the term lunula to refer to the round brackets or parentheses ( ) recalling the shape of the crescent moon (Latin: luna).[6]
+
+Most typewriters only had the left and right parentheses. Square brackets appeared with some teleprinters.
+
+Braces (curly brackets) first became part of a character set with the 8-bit code of the IBM 7030 Stretch.[7]
+
+In 1961, ASCII contained parentheses, square, and curly brackets, and also less-than and greater-than signs that could be used as angle brackets.
+
+Typography [ edit ]
+
+In English, typographers mostly prefer not to set brackets in italics, even when the enclosed text is italic.[8] However, in other languages like German, if brackets enclose text in italics, they are usually also set in italics.[9]
+
+Parentheses or round brackets [ edit ]
+
+Parenthesis ( ) parentheses (AE)
+
+brackets (BE)
+
+round brackets (BE) In Unicode General purpose [10] (half-width): U+0028 ( LEFT PARENTHESIS ( ( )
+
+( ) U+0029 ) RIGHT PARENTHESIS ( ) ) General purpose [11] (full-width East Asian): U+FF08 （ FULLWIDTH LEFT PARENTHESIS
+
+U+FF09 ） FULLWIDTH RIGHT PARENTHESIS Arabic script
+
+(Quranic quotations)[12] (Quranic quotations) U+FD3E ﴾ ORNATE LEFT PARENTHESIS
+
+U+FD3F ﴿ ORNATE RIGHT PARENTHESIS Mediaeval studies[13][14] U+2E28 ⸨ LEFT DOUBLE PARENTHESIS
+
+U+2E29 ⸩ RIGHT DOUBLE PARENTHESIS [15][16][17][18] Technical U+207D ⁽ SUPERSCRIPT LEFT PARENTHESIS
+
+U+207E ⁾ SUPERSCRIPT RIGHT PARENTHESIS
+
+U+208D ₍ SUBSCRIPT LEFT PARENTHESIS
+
+U+208E ₎ SUBSCRIPT RIGHT PARENTHESIS
+
+U+239B ⎛ LEFT PARENTHESIS UPPER HOOK
+
+U+239C ⎜ LEFT PARENTHESIS EXTENSION
+
+U+239D ⎝ LEFT PARENTHESIS LOWER HOOK
+
+U+239E ⎞ RIGHT PARENTHESIS UPPER HOOK
+
+U+239F ⎟ RIGHT PARENTHESIS EXTENSION
+
+U+23A0 ⎠ RIGHT PARENTHESIS LOWER HOOK
+
+U+23DC ⏜ TOP PARENTHESIS ( ⏜ )
+
+( ) U+23DD ⏝ BOTTOM PARENTHESIS ( ⏝ )
+
+( ) U+27EE ⟮ MATHEMATICAL LEFT FLATTENED PARENTHESIS
+
+U+27EF ⟯ MATHEMATICAL RIGHT FLATTENED PARENTHESIS
+
+U+2983 ⦃ LEFT WHITE CURLY BRACKET
+
+U+2984 ⦄ RIGHT WHITE CURLY BRACKET
+
+U+2985 ⦅ LEFT WHITE PARENTHESIS ( ⦅ )
+
+( ) U+2986 ⦆ RIGHT WHITE PARENTHESIS ( ⦆ ) [19] Phonetic punctuation U+2E59 ⹙ TOP HALF LEFT PARENTHESIS
+
+U+2E5A ⹚ TOP HALF RIGHT PARENTHESIS
+
+U+2E5B ⹛ BOTTOM HALF LEFT PARENTHESIS
+
+U+2E5C ⹜ BOTTOM HALF RIGHT PARENTHESIS Dingbats[20] U+2768 ❨ MEDIUM LEFT PARENTHESIS ORNAMENT
+
+U+2769 ❩ MEDIUM RIGHT PARENTHESIS ORNAMENT
+
+U+276A ❪ MEDIUM FLATTENED LEFT PARENTHESIS ORNAMENT
+
+U+276B ❫ MEDIUM FLATTENED RIGHT PARENTHESIS ORNAMENT
+
+( and ) are parentheses (singular parenthesis ) in American English, and either round brackets or simply brackets in British English. They are also known as ""parens"" , ""circle brackets"", or ""smooth brackets"".
+
+In formal writing, ""parentheses"" is also used in British English.[citation needed]
+
+Uses of ( ) [ edit ]
+
+Parentheses contain adjunctive material that serves to clarify (in the manner of a gloss) or is aside from the main point.[21]
+
+A comma before or after the material can also be used, though if the sentence contains commas for other purposes, visual confusion may result. A dash before and after the material is also sometimes used.
+
+Parentheses may be used in formal writing to add supplementary information, such as ""Senator John McCain (R - Arizona) spoke at length"". They can also indicate shorthand for ""either singular or plural"" for nouns, e.g. ""the claim(s)"". It can also be used for gender-neutral language, especially in languages with grammatical gender, e.g. ""(s)he agreed with his/her physician"" (the slash in the second instance, as one alternative is replacing the other, not adding to it).
+
+Parenthetical phrases have been used extensively in informal writing and stream of consciousness literature. Examples include the southern American author William Faulkner (see Absalom, Absalom! and the Quentin section of The Sound and the Fury) as well as poet E. E. Cummings.
+
+Parentheses have historically been used where the em dash is currently used in alternatives, such as ""parenthesis)(parentheses"". Examples of this usage can be seen in editions of Fowler's Dictionary of Modern English Usage.
+
+Parentheses may be nested (generally with one set (such as this) inside another set). This is not commonly used in formal writing (though sometimes other brackets [especially square brackets] will be used for one or more inner set of parentheses [in other words, secondary {or even tertiary} phrases can be found within the main parenthetical sentence]).
+
+Language [ edit ]
+
+A parenthesis in rhetoric and linguistics refers to the entire bracketed text, not just to the enclosing marks used (so all the text in this set of round brackets may be described as ""a parenthesis"").[22] Taking as an example the sentence ""Mrs. Pennyfarthing (What? Yes, that was her name!) was my landlady."", the explanatory phrase between the parentheses is itself called a parenthesis. Again, the parenthesis implies that the meaning and flow of the bracketed phrase is supplemental to the rest of the text and the whole would be unchanged were the parenthesized sentences removed. The term refers to the syntax rather than the enclosure method: the same clause in the form ""Mrs. Pennyfarthing – What? Yes, that was her name! – was my landlady"" is also a parenthesis.[23] (In non-specialist usage, the term ""parenthetical phrase"" is more widely understood.[24])
+
+In phonetics, parentheses are used for indistinguishable[25] or unidentified utterances. They are also seen for silent articulation (mouthing),[26] where the expected phonetic transcription is derived from lip-reading, and with periods to indicate silent pauses, for example (…) or (2 sec).
+
+Enumerations [ edit ]
+
+An unpaired right parenthesis is often used as part of a label in an ordered list, such as this one:
+
+a) educational testing,
+
+b) technical writing and diagrams,
+
+c) market research, and
+
+d) elections.
+
+Accounting [ edit ]
+
+Traditionally in accounting, contra amounts are placed in parentheses. A debit balance account in a series of credit balances will have parenthesis and vice versa.
+
+Parentheses in mathematics [ edit ]
+
+Parentheses are used in mathematical notation to indicate grouping, often inducing a different order of operations. For example: in the usual order of algebraic operations, 4 × 3 + 2 equals 14, since the multiplication is done before the addition. However, 4 × (3 + 2) equals 20, because the parentheses override normal precedence, causing the addition to be done first. Some authors follow the convention in mathematical equations that, when parentheses have one level of nesting, the inner pair are parentheses and the outer pair are square brackets. Example:
+
+[ 4 × ( 3 + 2 ) ] 2 = 400. {\displaystyle [4\times (3+2)]^{2}=400.}
+
+Parentheses in programming languages [ edit ]
+
+Parentheses are included in the syntaxes of many programming languages. Typically needed to denote an argument; to tell the compiler what data type the Method/Function needs to look for first in order to initialise. In some cases, such as in LISP, parentheses are a fundamental construct of the language. They are also often used for scoping functions and operators and for arrays. In syntax diagrams they are used for grouping, such as in extended Backus–Naur form.
+
+In Mathematica and the Wolfram language, parentheses are used to indicate grouping – for example, with pure anonymous functions.
+
+Taxonomy [ edit ]
+
+If it is desired to include the subgenus when giving the scientific name of an animal species or subspecies, the subgenus's name is provided in parentheses between the genus name and the specific epithet.[27] For instance, Polyphylla (Xerasiobia) alba is a way to cite the species Polyphylla alba while also mentioning that it is in the subgenus Xerasiobia.[28] There is also a convention of citing a subgenus by enclosing it in parentheses after its genus, e.g., Polyphylla (Xerasiobia) is a way to refer to the subgenus Xerasiobia within the genus Polyphylla.[29] Parentheses are similarly used to cite a subgenus with the name of a prokaryotic species, although the International Code of Nomenclature of Prokaryotes (ICNP) requires the use of the abbreviation ""subgen."" as well, e.g., Acetobacter (subgen. Gluconoacetobacter) liquefaciens.[30]
+
+Chemistry [ edit ]
+
+Parentheses are used in chemistry to denote a repeated substructure within a molecule, e.g. HC(CH 3 ) 3 (isobutane) or, similarly, to indicate the stoichiometry of ionic compounds with such substructures: e.g. Ca(NO 3 ) 2 (calcium nitrate).
+
+This is a notation that was pioneered by Berzelius, who wanted chemical formulae to more resemble algebraic notation, with brackets enclosing groups that could be multiplied (e.g. in 3(AlO 2 + 2SO 3 ) the 3 multiplies everything within the parentheses).
+
+In chemical nomenclature, parentheses are used to distinguish structural features and multipliers for clarity, for example in the polymer poly(methyl methacrylate).[33]
+
+Square brackets [ edit ]
+
+Square brackets [ ] In Unicode General purpose
+
+(half-width)[10] U+005B [ LEFT SQUARE BRACKET ( [, [ )
+
+( ) U+005D ] RIGHT SQUARE BRACKET ( ], ] ) General purpose
+
+(full-width East Asian)[11] U+FF3B ［ FULLWIDTH LEFT SQUARE BRACKET
+
+U+FF3D ］ FULLWIDTH RIGHT SQUARE BRACKET Mediaeval studies[13][14] U+2045 ⁅ LEFT SQUARE BRACKET WITH QUILL
+
+U+2046 ⁆ RIGHT SQUARE BRACKET WITH QUILL [15][16][17][18] Technical/Mathematical U+23A1 ⎡ LEFT SQUARE BRACKET UPPER CORNER
+
+U+23A2 ⎢ LEFT SQUARE BRACKET EXTENSION
+
+U+23A3 ⎣ LEFT SQUARE BRACKET LOWER CORNER
+
+U+23A4 ⎤ RIGHT SQUARE BRACKET UPPER CORNER
+
+U+23A5 ⎥ RIGHT SQUARE BRACKET EXTENSION
+
+U+23A6 ⎦ RIGHT SQUARE BRACKET LOWER CORNER
+
+U+23B4 ⎴ TOP SQUARE BRACKET ( ⎴, ⎴ )
+
+( ) U+23B5 ⎵ BOTTOM SQUARE BRACKET ( ⎵, ⎵ )
+
+( ) U+23B6 ⎶ BOTTOM SQUARE BRACKET OVER TOP SQUARE BRACKET ( ⎶ )
+
+( ) U+27E6 ⟦ MATHEMATICAL LEFT WHITE SQUARE BRACKET ( ⟦, ⟦ )
+
+( ) U+27E7 ⟧ MATHEMATICAL RIGHT WHITE SQUARE BRACKET ( ⟧, ⟧ )
+
+( ) U+298B ⦋ LEFT SQUARE BRACKET WITH UNDERBAR ( ⦋ )
+
+( ) U+298C ⦌ RIGHT SQUARE BRACKET WITH UNDERBAR ( ⦌ )
+
+( ) U+298D ⦍ LEFT SQUARE BRACKET WITH TICK IN TOP CORNER ( ⦍ )
+
+( ) U+2990 ⦐ RIGHT SQUARE BRACKET WITH TICK IN TOP CORNER ( ⦐ )
+
+( ) U+298E ⦎ RIGHT SQUARE BRACKET WITH TICK IN BOTTOM CORNER ( ⦎ )
+
+( ) U+298F ⦏ LEFT SQUARE BRACKET WITH TICK IN BOTTOM CORNER ( ⦏ ) [19] Phonetic punctuation U+2E55 ⹕ LEFT SQUARE BRACKET WITH STROKE
+
+U+2E56 ⹖ RIGHT SQUARE BRACKET WITH STROKE
+
+U+2E57 ⹗ LEFT SQUARE BRACKET WITH DOUBLE STROKE
+
+U+2E58 ⹘ RIGHT SQUARE BRACKET WITH DOUBLE STROKE
+
+(East-Asian texts)[34] Quotation(East-Asian texts) U+301A 〚 LEFT WHITE SQUARE BRACKET
+
+U+301B 〛 RIGHT WHITE SQUARE BRACKET
+
+[ and ] are square brackets in both British and American English, but are also more simply brackets in the latter. An older name for these brackets is ""crotchets"".[35]
+
+Uses of [ ] [ edit ]
+
+Square brackets are often used to insert explanatory material or to mark where a [word or] passage was omitted from an original material by someone other than the original author, or to mark modifications in quotations.[36] In transcribed interviews, sounds, responses and reactions that are not words but that can be described are set off in square brackets — ""... [laughs] ..."".
+
+When quoted material is in any way altered, the alterations are enclosed in square brackets within the quotation to show that the quotation is not exactly as given, or to add an annotation.[37] For example: The Plaintiff asserted his cause is just, stating,
+
+In the original quoted sentence, the word ""my"" was capitalized: it has been modified in the quotation given and the change signalled with brackets. Similarly, where the quotation contained a grammatical error (is/are), the quoting author signalled that the error was in the original with ""[sic]"" (Latin for 'thus').
+
+A bracketed ellipsis, [...], is often used to indicate omitted material: ""I'd like to thank [several unimportant people] for their tolerance [...]""[38] Bracketed comments inserted into a quote indicate where the original has been modified for clarity: ""I appreciate it [the honor], but I must refuse"", and ""the future of psionics [see definition] is in doubt"". Or one can quote the original statement ""I hate to do laundry"" with a (sometimes grammatical) modification inserted: He ""hate[s] to do laundry"".
+
+Additionally, a small letter can be replaced by a capital one, when the beginning of the original printed text is being quoted in another piece of text or when the original text has been omitted for succinctness— for example, when referring to a verbose original: ""To the extent that policymakers and elite opinion in general have made use of economic analysis at all, they have, as the saying goes, done so the way a drunkard uses a lamppost: for support, not illumination"", can be quoted succinctly as: ""[P]olicymakers [...] have made use of economic analysis [...] the way a drunkard uses a lamppost: for support, not illumination."" When nested parentheses are needed, brackets are sometimes used as a substitute for the inner pair of parentheses within the outer pair.[39] When deeper levels of nesting are needed, convention is to alternate between parentheses and brackets at each level.
+
+Alternatively, empty square brackets can also indicate omitted material, usually single letter only. The original, ""Reading is also a process and it also changes you."" can be rewritten in a quote as: It has been suggested that reading can ""also change[] you"".[40]
+
+In translated works, brackets are used to signify the same word or phrase in the original language to avoid ambiguity.[41] For example: He is trained in the way of the open hand [karate].
+
+Style and usage guides originating in the news industry of the twentieth century, such as the AP Stylebook, recommend against the use of square brackets because ""They cannot be transmitted over news wires.""[42] However, this guidance has little relevance outside of the technological constraints of the industry and era.
+
+In linguistics, phonetic transcriptions are generally enclosed within square brackets,[43] whereas phonemic transcriptions typically use paired slashes, according to International Phonetic Alphabet rules. Pipes (| |) are often used to indicate a morphophonemic rather than phonemic representation. Other conventions are double slashes (⫽ ⫽), double pipes (‖ ‖) and curly brackets ({ }).
+
+In lexicography, square brackets usually surround the section of a dictionary entry which contains the etymology of the word the entry defines.
+
+Proofreading [ edit ]
+
+Brackets (called move-left symbols or move right symbols) are added to the sides of text in proofreading to indicate changes in indentation:
+
+Move left [To Fate I sue, of other means bereft, the only refuge for the wretched left. Center ]Paradise Lost[ Move up
+
+Square brackets are used to denote parts of the text that need to be checked when preparing drafts prior to finalizing a document.
+
+Law [ edit ]
+
+Square brackets are used in some countries in the citation of law reports to identify parallel citations to non-official reporters. For example:
+
+Chronicle Pub. Co. v Superior Court (1998) 54 Cal.2d 548, [7 Cal.Rptr. 109]
+
+In some other countries (such as England and Wales), square brackets are used to indicate that the year is part of the citation and parentheses are used to indicate the year the judgment was given. For example:
+
+National Coal Board v England [1954] AC 403
+
+This case is in the 1954 volume of the Appeal Cases reports, although the decision may have been given in 1953 or earlier. Compare with:
+
+(1954) 98 Sol Jo 176
+
+This citation reports a decision from 1954, in volume 98 of the Solicitors Journal which may be published in 1955 or later.
+
+They often denote points that have not yet been agreed to in legal drafts and the year in which a report was made for certain case law decisions.
+
+Square brackets in mathematics [ edit ]
+
+Brackets are used in mathematics in a variety of notations, including standard notations for commutators, the floor function, the Lie bracket, equivalence classes, the Iverson bracket, and matrices.
+
+Square brackets may be used exclusively or in combination with parentheses to represent intervals as interval notation. For example, [0,5] represents the set of real numbers from 0 to 5 inclusive. Both parentheses and brackets are used to denote a half-open interval; [5, 12) would be the set of all real numbers between 5 and 12, including 5 but not 12. The numbers may come as close as they like to 12, including 11.999 and so forth, but 12.0 is not included. In some European countries, the notation [5, 12[ is also used.[45][46] The endpoint adjoining the square bracket is known as closed, whereas the endpoint adjoining the parenthesis is known as open.
+
+In group theory and ring theory, brackets denote the commutator. In group theory, the commutator [g, h] is commonly defined as g −1 h −1 g h . In ring theory, the commutator [a, b] is defined as a b − b a .
+
+Chemistry [ edit ]
+
+Square brackets can also be used in chemistry to represent the concentration of a chemical substance in solution and to denote charge a Lewis structure of an ion (particularly distributed charge in a complex ion), repeating chemical units (particularly in polymers) and transition state structures, among other uses.
+
+Square brackets in programming languages [ edit ]
+
+Brackets are used in many computer programming languages, primarily for array indexing. But they are also used to denote general tuples, sets and other structures, just as in mathematics. There may be several other uses as well, depending on the language at hand. In syntax diagrams they are used for optional portions, such as in extended Backus–Naur form.
+
+Double brackets ⟦ ⟧ [ edit ]
+
+Double brackets (or white square brackets or Scott brackets), ⟦ ⟧, are used to indicate the semantic evaluation function in formal semantics for natural language and denotational semantics for programming languages.[47][48] In the Wolfram Language, double brackets, either as iterated single brackets ([[) or ligatures (〚) are used for list indexing.[49]
+
+The brackets stand for a function that maps a linguistic expression to its ""denotation"" or semantic value. In mathematics, double brackets may also be used to denote intervals of integers or, less often, the floor function. In papyrology, following the Leiden Conventions, they are used to enclose text that has been deleted in antiquity.[50]
+
+Brackets with quills ⁅ ⁆ [ edit ]
+
+Known as ""spike parentheses"" (Swedish: piggparenteser), ⁅ and ⁆ are used in Swedish bilingual dictionaries to enclose supplemental constructions.[51]
+
+Curly brackets [ edit ]
+
+Curly brackets { } In Unicode General
+
+(half width)[10] U+007B { LEFT CURLY BRACKET ( {, { )
+
+( ) U+007D } RIGHT CURLY BRACKET ( }, } ) General
+
+(full-width East Asian)[11] U+FF5B ｛ FULLWIDTH LEFT CURLY BRACKET
+
+U+FF5D ｝ FULLWIDTH RIGHT CURLY BRACKET
+
+(half-width)[15][16][17][18] Technical/Mathematical(half-width) U+23A7 ⎧ LEFT CURLY BRACKET UPPER HOOK
+
+U+23A8 ⎨ LEFT CURLY BRACKET MIDDLE PIECE
+
+U+23A9 ⎩ LEFT CURLY BRACKET LOWER HOOK
+
+U+23AB ⎫ RIGHT CURLY BRACKET UPPER HOOK
+
+U+23AC ⎬ RIGHT CURLY BRACKET MIDDLE PIECE
+
+U+23AD ⎭ RIGHT CURLY BRACKET LOWER HOOK
+
+U+23AA ⎪ CURLY BRACKET EXTENSION
+
+U+23B0 ⎰ UPPER LEFT OR LOWER RIGHT CURLY BRACKET SECTION ( ⎰, ⎰ )
+
+( ) U+23B1 ⎱ UPPER RIGHT OR LOWER LEFT CURLY BRACKET SECTION ( ⎱, ⎱ )
+
+( ) U+23DE ⏞ TOP CURLY BRACKET ( ⏞ )
+
+( ) U+23DF ⏟ BOTTOM CURLY BRACKET ( ⏟ ) Dingbats[20] U+2774 ❴ MEDIUM LEFT CURLY BRACKET ORNAMENT
+
+U+2775 ❵ MEDIUM RIGHT CURLY BRACKET ORNAMENT
+
+{ and } are braces in both American and British English, and also curly brackets in the latter.
+
+Uses of { } [ edit ]
+
+An example of curly brackets used to group sentences together
+
+Curly brackets are used by text editors to mark editorial insertions[52] or interpolations.[53]
+
+Braces used to be used to connect multiple lines of poetry, such as triplets in a poem of rhyming couplets,[54] although this usage had gone out of fashion by the 19th century.
+
+Another older use in prose was to eliminate duplication in lists and tables. Two examples here from Charles Hutton's 19th century table table of weights and measures in his A Course of Mathematics:
+
+In this kingdom The standard of … ⎧ Length is a Yard. ⎪ Surface is a Square Yard, the 1 ⁄ 4840 of an Acre. ⎨ ⎰ Solidity is a Cubic Yard. ⎪ ⎱ Capacity is a Gallon. ⎩ Weight is a Pound.
+
+Imperial measure of CAPACITY for coals, culm, lime, fish, potatoes, fruit,– and other goods commonly sold by heaped measure: 2 Gallons = 1 Peck = 764 ⎱ Cubic Inches, nearly 8 Gallons = 1 Bushel = 2813 1 ⁄ 2 ⎰ 3 Bushels = 1 Sack = 4 8 ⁄ 9 ⎱ Cubic Feet, nearly 12 Sacks = 1 Chald. = 58 2 ⁄ 3 ⎰
+
+As an extension to the International Phonetic Alphabet (IPA), braces are used for prosodic notation.
+
+Music [ edit ]
+
+In music, they are known as ""accolades"" or ""braces"", and connect two or more lines (staves) of music that are played simultaneously.[59]
+
+Chemistry [ edit ]
+
+The use of braces in chemistry is an old notation that has long since been superseded by subscripted numbers. The chemical formula for water, H 2 O, was represented as H H } O {\displaystyle \left.{\stackrel {H}{H}}\right\}O} .
+
+Curly brackets in programming languages [ edit ]
+
+In many programming languages, curly brackets enclose groups of statements and create a local scope. Such languages (C, C#, C++ and many others) are therefore called curly bracket languages.[60] They are also used to define structures and enumerated type in these languages.
+
+In various Unix shells, they enclose a group of strings that are used in a process known as brace expansion, where each successive string in the group is interpolated at that point in the command line to generate the command-line's final form. The mechanism originated in the C shell and the string generation mechanism is a simple interpolation that can occur anywhere in a command line and takes no account of existing filenames.
+
+In syntax diagrams they are used for repetition, such as in extended Backus–Naur form.
+
+In the Z formal specification language, braces define a set.
+
+Curly brackets in mathematics [ edit ]
+
+In mathematics they delimit sets, in what is called set notation. Braces enclose either a literal list of set elements, or a rule that defines the set elements. For example:
+
+S = { a , b } defines a set S containing a and b .
+
+defines a set containing and . S = { x | x > 0} defines a set S containing elements (implied to be numbers) x 0 , x 1 , and so on where every x n satisfies the rule that it is greater than zero.
+
+They are often also used to denote the Poisson bracket between two quantities.
+
+In ring theory, braces denote the anticommutator where {a, b} is defined as a b + b a .
+
+Angle brackets [ edit ]
+
+""Angle bracket"" redirects here. For a mechanical part used for joining, see Angle bracket (fastener)
+
+Angle brackets ⟨ ⟩ ⟪ ⟫ < > Angle brackets (BE&AE) Angle brackets (BE&AE) less-than and greater-than In Unicode Less/greater than
+
+(half width)[10] U+003C < LESS-THAN SIGN ( <, < )
+
+( ) U+003E > GREATER-THAN SIGN ( >, > ) Less/greater than
+
+(full-width East Asian)[11] U+FF1C ＜ FULLWIDTH LESS-THAN SIGN
+
+U+FF1E ＞ FULLWIDTH GREATER-THAN SIGN
+
+(half-width)[15][16][17][18] Technical/Mathematical(half-width) U+2329 〈 LEFT-POINTING ANGLE BRACKET [a]
+
+U+232A 〉 RIGHT-POINTING ANGLE BRACKET [a]
+
+U+27E8 ⟨ MATHEMATICAL LEFT ANGLE BRACKET ( ⟨, ⟨, ⟨ ) [a]
+
+( ) U+27E9 ⟩ MATHEMATICAL RIGHT ANGLE BRACKET ( ⟩, ⟩, ⟩ ) [a]
+
+( ) U+27EA ⟪ MATHEMATICAL LEFT DOUBLE ANGLE BRACKET ( ⟪ )
+
+( ) U+27EB ⟫ MATHEMATICAL RIGHT DOUBLE ANGLE BRACKET ( ⟫ )
+
+( ) U+2991 ⦑ LEFT ANGLE BRACKET WITH DOT ( ⦑ )
+
+( ) U+2992 ⦒ RIGHT ANGLE BRACKET WITH DOT ( ⦒ )
+
+( ) U+29FC ⧼ LEFT-POINTING CURVED ANGLE BRACKET
+
+U+29FD ⧽ RIGHT-POINTING CURVED ANGLE BRACKET
+
+(fullwidth East-Asian texts)[34] Quotation(fullwidth East-Asian texts) U+3008 〈 LEFT ANGLE BRACKET
+
+U+3009 〉 RIGHT ANGLE BRACKET
+
+U+300A 《 LEFT DOUBLE ANGLE BRACKET
+
+U+300B 》 RIGHT DOUBLE ANGLE BRACKET Dingbats[20] U+276C ❬ MEDIUM LEFT-POINTING ANGLE BRACKET ORNAMENT
+
+U+276D ❭ MEDIUM RIGHT-POINTING ANGLE BRACKET ORNAMENT
+
+U+2770 ❰ HEAVY LEFT-POINTING ANGLE BRACKET ORNAMENT
+
+U+2771 ❱ HEAVY RIGHT-POINTING ANGLE BRACKET ORNAMENT
+
+U+276E ❮ HEAVY LEFT-POINTING ANGLE QUOTATION MARK ORNAMENT
+
+U+276F ❯ HEAVY RIGHT-POINTING ANGLE QUOTATION MARK ORNAMENT
+
+⟨ and ⟩ are angle brackets in both American and British English. In computer slang, they are known as ""brokets"".[64]
+
+Strictly speaking they are distinct from V-shaped chevrons, as they have (where the typography permits it) a broader span than chevrons, although when printed often no visual distinction is made.
+
+The ASCII less-than and greater-than characters <> are often used for angle brackets. In most cases only those characters are accepted by computer programs, and the Unicode angle brackets are not recognized (for instance, in HTML tags). The characters for ""single"" guillemets ‹› are also often used, and sometimes normal guillemets «» when nested angle brackets are needed.
+
+The angle brackets or chevrons at U+27E8 and U+27E9 are for mathematical use and Western languages, whereas U+3008 and U+3009 are for East Asian languages. The chevrons at U+2329 and U+232A are deprecated in favour of the U+3008 and U+3009 East Asian angle brackets. Unicode discourages their use for mathematics and in Western texts,[15] because they are canonically equivalent to the CJK code points U+300x and thus likely to render as double-width symbols. The less-than and greater-than symbols are often used as replacements for chevrons.
+
+Shape [ edit ]
+
+Angle brackets are larger than less-than and greater-than signs, which in turn are larger than guillemets.
+
+Angle brackets, less-than/greater-than signs and single guillemets in fonts Cambria, DejaVu Serif, Andron Mega Corpus, Andika and Everson Mono
+
+Uses of ⟨ ⟩ [ edit ]
+
+Angle brackets are infrequently used to denote words that are thought instead of spoken, such as:
+
+⟨What an unusual flower!⟩
+
+In textual criticism, and hence in many editions of pre-modern works, chevrons denote sections of the text which are illegible or otherwise lost; the editor will often insert their own reconstruction where possible within them.[66]
+
+In comic books, chevrons are often used to mark dialogue that has been translated notionally from another language; in other words, if a character is speaking another language, instead of writing in the other language and providing a translation, one writes the translated text within chevrons. Since no foreign language is actually written, this is only notionally translated.[citation needed]
+
+In linguistics, angle brackets identify graphemes ( e.g. , letters of an alphabet) or orthography, as in ""The English word /kæt/ is spelled ⟨cat⟩.""[67][68][66] (See IPA Brackets and transcription delimiters.)
+
+In epigraphy, they may be used for mechanical transliterations of a text into the Latin script.[68]
+
+In East Asian punctuation, angle brackets are used as quotation marks. Chevron-like symbols are part of standard Chinese, Japanese and – less frequently – Korean punctuation, where they generally enclose the titles of books, as: 〈 ... 〉 or 《 ... 》 for traditional vertical printing — written in vertical lines — and as 〈 ... 〉 or 《 ... 》 for horizontal printing — in horizontal.
+
+Angle brackets in mathematics [ edit ]
+
+Angle brackets (or 'chevrons') are used in group theory to write group presentations, and to denote the subgroup generated by a collection of elements. In set theory, chevrons or parentheses are used to denote ordered pairs[69] and other tuples, whereas curly brackets are used for unordered sets.
+
+Physics and mechanics [ edit ]
+
+In physical sciences and statistical mechanics, angle brackets are used to denote an average (expected value) over time or over another continuous parameter. For example:
+
+⟨ V ( t ) 2 ⟩ = lim T → ∞ 1 T ∫ − T 2 T 2 V ( t ) 2 d t . {\displaystyle \left\langle V(t)^{2}\right\rangle =\lim _{T\to \infty }{\frac {1}{T}}\int _{-{\frac {T}{2}}}^{\frac {T}{2}}V(t)^{2}\,{\rm {d}}t.}
+
+In mathematical physics, especially quantum mechanics, it is common to write the inner product between elements as ⟨a|b⟩, as a short version of ⟨a|·|b⟩, or ⟨a|Ô|b⟩, where Ô is an operator. This is known as Dirac notation or bra–ket notation, to note vectors from the dual spaces of the Bra ⟨A| and the Ket |B⟩. But there are other notations used.
+
+In continuum mechanics, chevrons may be used as Macaulay brackets.
+
+Angle brackets in programming languages [ edit ]
+
+In C++ chevrons (actually less-than and greater-than) are used to surround arguments to templates. They are also used to surround the names of header files; this usage was inherited from and is also found in C.
+
+In the Z formal specification language, chevrons define a sequence.
+
+In HTML, chevrons (actually 'greater than' and 'less than' symbols) are used to bracket meta text. For example <b> denotes that the following text should be displayed as bold. Pairs of meta text tags are required – much as brackets themselves are usually in pairs. The end of the bold text segment would be indicated by </b> . This use is sometimes extended as an informal mechanism for communicating mood or tone in digital formats such as messaging, for example adding ""<sighs>"" at the end of a sentence.
+
+Other brackets [ edit ]
+
+Lenticular brackets【】 [ edit ]
+
+Some East Asian languages use lenticular brackets 【 】, a combination of square brackets and round brackets called 方頭括號 (fāngtóu kuòhào) in Chinese and 隅付き括弧 (sumitsuki kakko) in Japanese. They are used in titles and headings in both Chinese[70] and Japanese. On the Internet, they are used to emphasize a text. In Japanese, they are most frequently seen in dictionaries for quoting Chinese characters and Sino-Japanese loanwords.
+
+Floor ⌊ ⌋ and ceiling ⌈ ⌉ corner brackets [ edit ]
+
+Floor and ceiling ⌈ceiling⌉ ⌊floor⌋ In Unicode Floor and ceiling functions[15] U+2308 ⌈ LEFT CEILING ( ⌈, ⌈ )
+
+( ) U+2309 ⌉ RIGHT CEILING ( ⌉, ⌉ )
+
+( ) U+230A ⌊ LEFT FLOOR ( ⌊, ⌊ )
+
+( ) U+230B ⌋ RIGHT FLOOR ( ⌋, ⌋ )
+
+The floor corner brackets ⌊ and ⌋, the ceiling corner brackets ⌈ and ⌉ (U+2308, U+2309) are used to denote the integer floor and ceiling functions.
+
+Quine corners ⌜⌝ and half brackets ⸤ ⸥ or ⸢ ⸣ [ edit ]
+
+The Quine corners ⌜ and ⌝ have at least two uses in mathematical logic: either as quasi-quotation, a generalization of quotation marks, or to denote the Gödel number of the enclosed expression.
+
+Half brackets are used in English to mark added text, such as in translations: ""Bill saw ⸤her⸥"".
+
+In editions of papyrological texts, half brackets, ⸤ and ⸥ or ⸢ and ⸣, enclose text which is lacking in the papyrus due to damage, but can be restored by virtue of another source, such as an ancient quotation of the text transmitted by the papyrus.[71] For example, Callimachus Iambus 1.2 reads: ἐκ τῶν ὅκου βοῦν κολλύ⸤βου π⸥ιπρήσκουσιν. A hole in the papyrus has obliterated βου π, but these letters are supplied by an ancient commentary on the poem. Second intermittent sources can be between ⸢ and ⸣. Quine corners are sometimes used instead of half brackets.[15]
+
+Unicode [ edit ]
+
+Representations of various kinds of brackets in Unicode and their respective HTML entities, that are not in the infoboxes in preceding sections, are given below.
+
+Unicode and HTML encodings for various bracket characters Uses Unicode/HTML Sample Quine corners[15] U+231C ⌜ TOP LEFT CORNER ( ⌜, ⌜ ) ⌜quasi-quotation⌝
+
+⌜editorial notation⌝ U+231D ⌝ TOP RIGHT CORNER ( ⌝, ⌝ ) U+231E ⌞ BOTTOM LEFT CORNER ( ⌞, ⌞ ) ⌞editorial notation⌟ U+231F ⌟ BOTTOM RIGHT CORNER ( ⌟, ⌟ ) Fullwidth parentheses[11] U+FF5F ｟ FULLWIDTH LEFT WHITE PARENTHESIS ｟...｠ U+FF60 ｠ FULLWIDTH RIGHT WHITE PARENTHESIS Technical/mathematical
+
+(specialized)[15][16][17][18] U+23B8 ⎸ LEFT VERTICAL BOX LINE ⎸boxed text⎹ U+23B9 ⎹ RIGHT VERTICAL BOX LINE U+23E0 ⏠ TOP TORTOISE SHELL BRACKET ⏠
+
+tortoise shell brackets
+
+⏡ U+23E1 ⏡ BOTTOM TORTOISE SHELL BRACKET U+27C5 ⟅ LEFT S-SHAPED BAG DELIMITER ⟅...⟆ U+27C6 ⟆ RIGHT S-SHAPED BAG DELIMITER U+27D3 ⟓ LOWER RIGHT CORNER WITH DOT ⟓pullback...pushout⟔ U+27D4 ⟔ UPPER LEFT CORNER WITH DOT U+27EC ⟬ MATHEMATICAL LEFT WHITE TORTOISE SHELL BRACKET ( ⟬ ) ⟬white tortoise shell brackets⟭ U+27ED ⟭ MATHEMATICAL RIGHT WHITE TORTOISE SHELL BRACKET ( ⟭ ) U+2987 ⦇ Z NOTATION LEFT IMAGE BRACKET R ⦇ S ⦈ U+2988 ⦈ Z NOTATION RIGHT IMAGE BRACKET U+2989 ⦉ Z NOTATION LEFT BINDING BRACKET ⦉ x :ℤ⦊ U+298A ⦊ Z NOTATION RIGHT BINDING BRACKET U+2993 ⦓ LEFT ARC LESS-THAN BRACKET ( ⦓ ) ⦓inequality sign brackets⦔ U+2994 ⦔ RIGHT ARC GREATER-THAN BRACKET ( ⦔ ) U+2995 ⦕ DOUBLE LEFT ARC GREATER-THAN BRACKET ( ⦕ ) ⦕inequality sign brackets⦖ U+2996 ⦖ DOUBLE RIGHT ARC LESS-THAN BRACKET ( ⦖ ) U+2997 ⦗ LEFT BLACK TORTOISE SHELL BRACKET ⦗black tortoise shell brackets⦘ U+2998 ⦘ RIGHT BLACK TORTOISE SHELL BRACKET U+29D8 ⧘ LEFT WIGGLY FENCE ⧘...⧙ U+29D9 ⧙ RIGHT WIGGLY FENCE U+29DA ⧚ LEFT DOUBLE WIGGLY FENCE ⧚...⧛ U+29DB ⧛ RIGHT DOUBLE WIGGLY FENCE Half brackets[14] U+2E22 ⸢ TOP LEFT HALF BRACKET ⸢editorial notation⸣ U+2E23 ⸣ TOP RIGHT HALF BRACKET U+2E24 ⸤ BOTTOM LEFT HALF BRACKET ⸤editorial notation⸥ U+2E25 ⸥ BOTTOM RIGHT HALF BRACKET Compatibility variants for CNS 11643[72] U+FE59 ﹙ SMALL LEFT PARENTHESIS ﹙...﹚ U+FE5A ﹚ SMALL RIGHT PARENTHESIS U+FE5B ﹛ SMALL LEFT CURLY BRACKET ﹛...﹜ U+FE5C ﹜ SMALL RIGHT CURLY BRACKET U+FE5D ﹝ SMALL LEFT TORTOISE SHELL BRACKET ﹝...﹞ U+FE5E ﹞ SMALL RIGHT TORTOISE SHELL BRACKET Dingbats[20] U+2772 ❲ LIGHT LEFT TORTOISE SHELL BRACKET ORNAMENT ( ❲ ) ❲light tortoise shell bracket ornament❳ U+2773 ❳ LIGHT RIGHT TORTOISE SHELL BRACKET ORNAMENT ( ❳ ) N'Ko[14] U+2E1C ⸜ LEFT LOW PARAPHRASE BRACKET ⸜ߒߞߏ⸝ ‎ U+2E1D ⸝ RIGHT LOW PARAPHRASE BRACKET Ogham[73] U+169B ᚛ OGHAM FEATHER MARK ᚛ᚑᚌᚐᚋ᚜ U+169C ᚜ OGHAM REVERSED FEATHER MARK Old Hungarian U+2E42 ⹂ DOUBLE LOW-REVERSED-9 QUOTATION MARK ⹂ Tibetan[74] U+0F3A ༺ TIBETAN MARK GUG RTAGS GYON ༺དབུ་ཅན་༻ U+0F3B ༻ TIBETAN MARK GUG RTAGS GYAS U+0F3C ༼ TIBETAN MARK ANG KHANG GYON ༼༡༢༣༽ U+0F3D ༽ TIBETAN MARK ANG KHANG GYAS New Testament editorial marks[14] U+2E02 ⸂ LEFT SUBSTITUTION BRACKET ⸂...⸃ U+2E03 ⸃ RIGHT SUBSTITUTION BRACKET U+2E04 ⸄ LEFT DOTTED SUBSTITUTION BRACKET ⸄...⸅ U+2E05 ⸅ RIGHT DOTTED SUBSTITUTION BRACKET U+2E09 ⸉ LEFT TRANSPOSITION BRACKET ⸉...⸊ U+2E0A ⸊ RIGHT TRANSPOSITION BRACKET U+2E0C ⸌ LEFT RAISED OMISSION BRACKET ⸌...⸍ U+2E0D ⸍ RIGHT RAISED OMISSION BRACKET Medieval studies[13][14] U+2E26 ⸦ LEFT SIDEWAYS U BRACKET ⸦crux⸧ U+2E27 ⸧ RIGHT SIDEWAYS U BRACKET Quotation
+
+(East-Asian texts)[34] U+3014 〔 LEFT TORTOISE SHELL BRACKET 〔...〕 U+3015 〕 RIGHT TORTOISE SHELL BRACKET U+3016 〖 LEFT WHITE LENTICULAR BRACKET 〖...〗 U+3017 〗 RIGHT WHITE LENTICULAR BRACKET U+3018 〘 LEFT WHITE TORTOISE SHELL BRACKET 〘...〙 U+3019 〙 RIGHT WHITE TORTOISE SHELL BRACKET U+301D 〝 REVERSED DOUBLE PRIME QUOTATION MARK 〝...〞 U+301E 〞 DOUBLE PRIME QUOTATION MARK [a] Quotation
+
+(halfwidth East-Asian texts)[15][11] U+FF62 ｢ HALFWIDTH LEFT CORNER BRACKET ｢ｶﾀｶﾅ｣ U+FF63 ｣ HALFWIDTH RIGHT CORNER BRACKET Quotation
+
+(fullwidth East-Asian texts)[34] U+300C 「 LEFT CORNER BRACKET 「表題」 U+300D 」 RIGHT CORNER BRACKET U+300E 『 LEFT WHITE CORNER BRACKET 『表題』 U+300F 』 RIGHT WHITE CORNER BRACKET U+3010 【 LEFT BLACK LENTICULAR BRACKET 【表題】 U+3011 】 RIGHT BLACK LENTICULAR BRACKET Vertical bracket presentation forms[75][76][b] U+FE17 ︗ PRESENTATION FORM FOR VERTICAL LEFT WHITE LENTICULAR BRACKET ︗...︘ U+FE18 ︘ PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET [c] U+FE35 ︵ PRESENTATION FORM FOR VERTICAL LEFT PARENTHESIS ︵...︶ U+FE36 ︶ PRESENTATION FORM FOR VERTICAL RIGHT PARENTHESIS U+FE37 ︷ PRESENTATION FORM FOR VERTICAL LEFT CURLY BRACKET ︷...︸ U+FE38 ︸ PRESENTATION FORM FOR VERTICAL RIGHT CURLY BRACKET U+FE39 ︹ PRESENTATION FORM FOR VERTICAL LEFT TORTOISE SHELL BRACKET ︹...︺ U+FE3A ︺ PRESENTATION FORM FOR VERTICAL RIGHT TORTOISE SHELL BRACKET U+FE3B ︻ PRESENTATION FORM FOR VERTICAL LEFT BLACK LENTICULAR BRACKET ︻...︼ U+FE3C ︼ PRESENTATION FORM FOR VERTICAL RIGHT BLACK LENTICULAR BRACKET U+FE3D ︽ PRESENTATION FORM FOR VERTICAL LEFT DOUBLE ANGLE BRACKET ︽...︾ U+FE3E ︾ PRESENTATION FORM FOR VERTICAL RIGHT DOUBLE ANGLE BRACKET U+FE3F ︿ PRESENTATION FORM FOR VERTICAL LEFT ANGLE BRACKET ︿...﹀ U+FE40 ﹀ PRESENTATION FORM FOR VERTICAL RIGHT ANGLE BRACKET U+FE41 ﹁ PRESENTATION FORM FOR VERTICAL LEFT CORNER BRACKET ﹁...﹂ U+FE42 ﹂ PRESENTATION FORM FOR VERTICAL RIGHT CORNER BRACKET U+FE43 ﹃ PRESENTATION FORM FOR VERTICAL LEFT WHITE CORNER BRACKET ﹃...﹄ U+FE44 ﹄ PRESENTATION FORM FOR VERTICAL RIGHT WHITE CORNER BRACKET U+FE47 ﹇ PRESENTATION FORM FOR VERTICAL LEFT SQUARE BRACKET ﹇...﹈ U+FE48 ﹈ PRESENTATION FORM FOR VERTICAL RIGHT SQUARE BRACKET
+
+^ This is fullwidth version of U+2033 ″ DOUBLE PRIME . In vertical texts, U+301F 〟 LOW DOUBLE PRIME QUOTATION MARK is preferred. ^ These characters are not used in typical documents. Instead the respective horizontal characters are used and the character that is rendered depends on the writing direction ^ sic]"". Since Unicode character names cannot be changed, this character has the corrected name as an The original name of this character is ""Presentation Form For Vertical Right White Lenticular Brakcet []"". Since Unicode character names cannot be changed, this character has the corrected name as an alias
+
+See also [ edit ]
+
+References [ edit ]
+
+Sources [ edit ]
+
+Bibliography [ edit ]
+
+Lennard, John (1991). But I Digress: The Exploitation of Parentheses in English Printed Verse . Oxford: Clarendon Press. ISBN 0198112475 .
+
+Turnbull, Arthur T.; Baird, Russell N. (1964). The Graphics of Communication: Typography, Layout, Design. New York: Holt, Rinehart and Winston. States that what are depicted as brackets above are called braces and braces are called brackets. This was the terminology in US printing prior to computers.",
+Control Structures | Style Guide,https://docs.scala-lang.org/style/control-structures.html,,"All control structures should be written with a space following the defining keyword:
+
+// right! if (foo) bar else baz for (i <- 0 to 10) { ... } while (true) { println(""Hello, World!"") } // wrong! if(foo) bar else baz for(i <- 0 to 10) { ... } while(true) { println(""Hello, World!"") }
+
+Curly-Braces
+
+Curly-braces should be omitted in cases where the control structure represents a pure-functional operation and all branches of the control structure (relevant to if / else ) are single-line expressions. Remember the following guidelines:
+
+if - Omit braces if you have an else clause. Otherwise, surround the contents with curly braces even if the contents are only a single line.
+
+- Omit braces if you have an clause. Otherwise, surround the contents with curly braces even if the contents are only a single line. while - Never omit braces ( while cannot be used in a pure-functional manner).
+
+- Never omit braces ( cannot be used in a pure-functional manner). for - Omit braces if you have a yield clause. Otherwise, surround the contents with curly-braces, even if the contents are only a single line.
+
+- Omit braces if you have a clause. Otherwise, surround the contents with curly-braces, even if the contents are only a single line. case - Always omit braces in case clauses.
+
+val news = if (foo) goodNews() else badNews() if (foo) { println(""foo was true"") } news match { case ""good"" => println(""Good news!"") case ""bad"" => println(""Bad news!"") }
+
+Comprehensions
+
+Scala has the ability to represent for -comprehensions with more than one generator (usually, more than one <- symbol). In such cases, there are two alternative syntaxes which may be used:
+
+// wrong! for (x <- board.rows; y <- board.files) yield (x, y) // right! for { x <- board.rows y <- board.files } yield (x, y)
+
+While the latter style is more verbose, it is generally considered easier to read and more “scalable” (meaning that it does not become obfuscated as the complexity of the comprehension increases). You should prefer this form for all for -comprehensions of more than one generator. Comprehensions with only a single generator (e.g. for (i <- 0 to 10) yield i ) should use the first form (parentheses rather than curly braces).
+
+The exceptions to this rule are for -comprehensions which lack a yield clause. In such cases, the construct is actually a loop rather than a functional comprehension and it is usually more readable to string the generators together between parentheses rather than using the syntactically-confusing } { construct:
+
+// wrong! for { x <- board.rows y <- board.files } { printf(""(%d, %d)"", x, y) } // right! for (x <- board.rows; y <- board.files) { printf(""(%d, %d)"", x, y) }
+
+Finally, for comprehensions are preferred to chained calls to map , flatMap , and filter , as this can get difficult to read (this is one of the purposes of the enhanced for comprehension).
+
+Trivial Conditionals
+
+There are certain situations where it is useful to create a short if / else expression for nested use within a larger expression. In Java, this sort of case would traditionally be handled by the ternary operator ( ? / : ), a syntactic device which Scala lacks. In these situations (and really any time you have a extremely brief if / else expression) it is permissible to place the “then” and “else” branches on the same line as the if and else keywords:
+
+val res = if (foo) bar else baz",
+"Curly Braces ({, }) - — librambutan prerelease documentation",https://librambutan.readthedocs.io/en/latest/lang/cpp/curly-braces.html,,"Curly braces (also referred to as just “braces” or as “curly brackets”) are a major part of the C and C++ programming languages. They are used in several different constructs, outlined below, and this can sometimes be confusing for beginners.
+
+An opening curly brace, { must always be followed by a closing curly brace } . This is a condition that is often referred to as the braces being balanced. The Maple IDE (integrated development environment) includes a convenient feature to check the balance of curly braces. Just select a brace, or even click the insertion point immediately following a brace, and its companion will be highlighted .
+
+Beginning programmers, and programmers coming to C++ from languages without braces, often find using them confusing or daunting.
+
+Because the use of the curly brace is so varied, it is good programming practice to type the closing brace immediately after typing the opening brace when inserting a construct which requires curly braces. Then insert some blank lines between your braces and begin inserting statements. Your braces, and your attitude, will never become unbalanced.
+
+Unbalanced braces can often lead to cryptic, impenetrable compiler errors that can sometimes be hard to track down in a large program. Because of their varied usages, braces are also incredibly important to the syntax of a program and moving a brace one or two lines will usually dramatically affect the meaning of a program.",
+Curly Braces Punctuation - Is It Brackets or Braces?,https://grammarist.com/punctuation/curly-braces-brackets/,,"Your keyboard has many punctuation marks on it, namely no less than four types of punctuation sets designed to separate words from the rest of a text. They all have multiple names as well, making them confusing to define.
+
+These marks, called braces and brackets, include parentheses, chevrons or angle brackets, and braces. And, if you don’t know the difference between a brace and bracket, you might become frustrated when each is acceptable to use.
+
+Let’s look at what a curly brace is and see why it is rarely used, as well as how it can be used should the opportunity present itself.
+
+What is a Curly Brace?
+
+Known as a brace, curly brace, or curly bracket, the {} punctuation marks are a true brace and the only punctuation mark to use brace in any part of its name.
+
+It is a rare mark and should never be used for formal writing unless it is part of a math equation, music cord (also called an accolade), computer programming, or for separating lists of equal items.
+
+Although not popular, it can be used informally to replace a bracket or parentheses in writing as well.
+
+Braces vs. Brackets
+
+There are four different types of brackets, but only one goes by the name of brace. Braces or brackets and all the other names they can go by can quickly get confusing. Use this quick chart to help define which is which and how they can be used in writing.
+
+(…) Parenthesis Round Bracket To enclose supplemental information in a sentence that clarifies or illustrates information.
+
+[…] Brackets Square Brackets To insert corrections, clarification, explanations, or comments in quotes.
+
+{…} Braces Curly Braces Curly Brackets As part of a math equation, music cord, computer programming, and separating lists of equal items. May also replace parentheses or brackets in informal writing.
+
+<…> Chevrons Angle Brackets To insert asides, mention a website, or indicate speech in a foreign language.
+
+History of the Curly Brace
+
+Curly braces were first used in the 1960s as part of the computer programming language BCPL. It was used as the primary symbol to block coded information together when writing a program.
+
+Prior to its invention, brackets and parentheses were used, but these quickly became confused due to the amount of information used in writing lines of commands. Introducing a new punctuation mark helped simplify and define different lines of data.
+
+How to Use Curly Braces in Writing
+
+As mentioned above, curly braces should only be used in informal writing or computer programming, math, and music. Let’s look at a few examples:
+
+Computer Programming: to block code or donate source code
+
+{
+
+for( int i=0; i<10; i++ )
+
+{
+
+System.out.print(“flag is true”);
+
+}
+
+Math: to denote the fractional part of a real number
+
+{3/2} = 0.5
+
+Music: to connect two or more lines of music
+
+Or
+
+The chords [{c, e, g} {e, g, c} {c, e, g}] were played over and over to help with fingering practice.
+
+Lists: to connect lists or equal items in a sequence
+
+I stopped by the store to pick up sandwich ingredients {gouda cheese, smoked ham, turkey, lettuce, tomatoes, onions}.
+
+Informal Informational Offsets: to replace parentheses or square brackets
+
+There was no way I was going on a road trip {unless the gas was paid for} since I would rather fly to my destination.
+
+Let’s Review
+
+Braces, a type of bracket, is also known as a curly brace or curly bracket and is rarely used in writing. It’s used as an extra punctuation mark for writing computer code and can also be seen in mathematical applications and music. In writing, you may also use it informally to replace parentheses or square brackets.",
+Curly Braces Vector Images (over 410),https://www.vectorstock.com/royalty-free-vectors/curly-braces-vectors,,"Every week we add new premium graphics by the thousands.
+
+We're the largest royalty-free, vector-only stock agency in the world.
+
+New to VectorStock?
+
+Whether you're a global ad agency or a freelance graphic designer, we have the vector graphics to make your project come to life.
+
+Buy Vectors, sell Vectors or both. Sign up now, it’s free.",
+Curly Brackets - Is it necessary? - Question & Answer,https://community.amazonquicksight.com/t/curly-brackets-is-it-necessary/6517,30 сент. 2022 г.,"It’s necessary if you have a field like max. Then quicksight doesn’t know if you are trying to make a calculation or reference a field.
+
+If it’s not a built in function then you should be good. I prefer curly brackets just to be safe, but you don’t need them for fields.",
+Curly Brackets PNG Transparent Images Free Download,https://pngtree.com/so/curly-brackets,,"Download only for Enterprise member!
+
+The authorization of this material is limited andexclusive for enterprise commercial use.
+
+Please upgrade to Enterprise plan to enjoy ten millions of resources and enterprise authorization certificate.",
+"Curly Brackets Vector Art, Icons, and Graphics for Free ...",https://www.vecteezy.com/free-vector/curly-brackets,,Editorial Use Only Editorial Use Only Details,
+Curly Brackets? How do I type them? - PHP,https://www.sitepoint.com/community/t/curly-brackets-how-do-i-type-them/2238,28 окт. 2005 г.,"Yep, depends entirely on your keyboard and your keymap.
+
+I use a swedish keyboard with the standard swedish keymap (ISO 8859-15), so for me it’s AltGr + 7 and AltGr + 0.
+
+AltGr is the Alt key to the right of the spacebar, for you uncivilized people who use weird keyboards that doesn’t have that key",
+Curly braces – {} – Arduino Reference,https://www.arduino.cc/en/Reference/Braces,,"The Arduino Reference text is licensed under a Creative Commons Attribution-Share Alike 3.0 License.
+
+Find anything that can be improved? Suggest corrections and new documentation via GitHub.
+
+Doubts on how to use Github? Learn everything you need to know in this tutorial.",
+Difference between round and Curly Brackets?,https://www.lenovo.com/us/en/glossary/curly-bracket/,,"What is a Curly Bracket?
+
+A curly bracket, also known as a brace, is a type of punctuation used in computer programming. It serves as an extension to an existing code or program to provide additional functions and assistance. In other words, it's a way for computers to do something extra when asked. It is usually used with other symbols such as parentheses (), square brackets [], angle brackets <>, and quotation marks """".
+
+What are Curly Brackets used for?
+
+Curly brackets are mainly used in coding languages such as Java, JavaScript, and Python. They can be used for creating conditional statements, loops and modifiers that tell the computer what action to take. Moreover, they serve as containers for information within programs like databases which instruct the computer on how to handle data.
+
+Can I use Curly Brackets without knowing how to code?
+
+Yes! Modern operating systems like Windows 10 have built-in support for curly brackets in various places like filenames and folder names. You can even use them while searching online or browsing file directories even if you don't know how to code.
+
+What is the difference between round and Curly Brackets?
+
+Round brackets (or parentheses) are often used to group together related pieces of information in complex statements or equations while the main intent of curly brackets is expansion of existing code to add additional instructions or features. This makes it easier for coders to write more organized codes quickly without having to rewrite the entire thing from scratch when adding new commands or instructions.
+
+How do I insert Curly Brackets on my computer?
+
+Most keyboards have separate keys for both round and curly brackets located near the “enter” key on either side. If your keyboard lacks them then you may need an alternative approach, you can copy/paste evidence from an online source or press Alt + 123 (for opening bracket) Alt + 125 (for closing bracket).
+
+Are there any other types of special characters besides Curly Brackets?
+
+Yes, there are! Special characters are symbols that do not appear on regular keyboards but rather exist within certain font sets (symbols with arrows, stars). These symbols have been specifically designed to help coders create precise instructions quickly without having to type out each symbol character manually every time they need it. Examples include dollar signs ($), hashtags (#), asterisks (*), ampersands (&) and many more.
+
+What are some commonly used Curly Bracket commands?
+
+One of the most common curly bracket commands is the ""if-then"" statement which helps computers process different sets of instructions depending on whether certain conditions are met or not. Other popular commands include “for loop” which allows a programmer to execute loops (repeated execution of code) and “switch” which lets a program check for multiple conditions before making any decisions. Additionally, there are many other powerful functions that can be used when coding with curly brackets such as arrays, classes, methods, and functions.
+
+Are Curly Brackets hard to learn?
+
+No, curly brackets are not hard to learn. With practice, you can become comfortable with the syntax and understand how they are used in different coding languages. It is important to note though that there may be some unique features or commands used within specific programming languages, so it is always beneficial to have resources such as tutorials and coding courses available to further your knowledge when needed. Additionally, many coding platforms offer autocomplete features which make it easy for coders to quickly locate the correct command without having to memorize the syntax for every language.
+
+What are the benefits of using Curly Brackets in coding?
+
+Using curly brackets in coding offers many benefits. First, they help keep code organized and make it easier to read. Secondly, they allow programmers to write concise code which is beneficial for reducing clutter and making changes more efficient. Lastly, using curly brackets can decrease the possibility of errors since all operations are clearly labeled with these brackets and any errors will be immediately noticed due to their distinct appearance.
+
+How do Curly Brackets work?
+
+Curly brackets are symbols in coding languages that allow the programmer to create sections of code related to a specific task. When a program is executed, it will run through each section of code bound by curly brackets and execute any instructions found within them. They are typically used with other commands to group them together in order to let the program know what it should be doing. For example, if a programmer wants a certain set of instructions to loop continuously until another command is encountered, they can use curly brackets to specify which instructions should be repeated.
+
+What other tools are used to help with coding?
+
+In addition to curly brackets, there are other tools and techniques used in coding to make the development process easier. One of the most popular tools is a source code editor, which allows the coder to write, modify and debug code quickly and efficiently. Another useful tool is version control software, which helps keep track of previous versions of a program so that specific changes can be easily undone or implemented if need be. Debugging tools such as linters are also invaluable when it comes to identifying potential errors before they become problematic.
+
+What are the benefits of learning to code?
+
+Learning to code can benefit anyone, regardless of whether you are looking for a career in technology or not. Coding is a great way to quickly build useful skills in problem solving and logical thinking. It also encourages creativity by allowing you to bring your ideas to life through code. Furthermore, coding can open up new employment opportunities and provide an invaluable edge over other job applicants. In the modern world, coding is becoming increasingly essential and those who are familiar with it have a distinct advantage over those who are not.
+
+What are the different types of programming languages?
+
+Programming languages are divided into two main categories: low-level and high-level. Low-level languages are closer to the machine language, and they are more closely tied to the hardware of the computer. High-level languages, on the other hand, offer a much more abstract programming style that is closer to human speech. Examples of high-level languages include Python, JavaScript, C++, and Java. Examples of low-level languages include assembly language and machine code.
+
+What are the benefits of learning multiple programming languages?
+
+Learning multiple programming languages can be very beneficial for a number of reasons. Different languages are better suited for different tasks, so knowing more than one can aid in solving complex problems. Additionally, having an understanding of multiple language syntaxes can make it easier to comprehend code written in a language you may not be familiar with. Lastly, having knowledge of multiple programming languages may provide more career opportunities, as some employers prefer candidates who have experience with multiple languages.
+
+What is the difference between compiled and interpreted programming languages?
+
+Compiled programming languages are translated into machine code before execution, while interpreted languages are converted to machine code directly during runtime. Compiled languages generally offer faster execution times since the entire program is pre-translated, but they also require more storage space and can be much harder to debug when something goes wrong. Interpreted languages are slower but easier to debug since they provide a more direct communication channel between the programmer and computer.",
+Escape Character for Curly Braces - PlantUML Q&A,https://forum.plantuml.net/17493/escape-character-for-curly-braces,24 февр. 2023 г.,"Email me at this address if a comment is added after mine:
+
+Email me if a comment is added after mine",
+Help w/ semicolons and curly brackets!,https://www.codecademy.com/forum_questions/5600136686f55233bb00024c,,"I don’t understand where and when you put semicolons and curly brackets. I thought I did, and everything has gone perfectly, until I came to exercise 12/13. I there noticed that it only worked when I didn’t put semicolons and curly brackets where I thought I should. I don’t understand. Could someone explain it to me?
+
+This is what I thought would be right, with semicolons at the end of most lines, and curly brackets for the “if” AND “else”:
+
+var sleepCheck = function(numHours); { if(numHours >= 8); return(“You’re getting plenty of sleep! Maybe even too much!”);
+
+}
+
+else { return(“Get some more shut eye!”); }
+
+But, when I write it like that I get a syntax error.
+
+This (below) is what is seen as right, with no semicolons after the lines, and only one pair of curly brackets for the whole if/else:
+
+var sleepCheck = function(numHours){ if(numHours >= 8 ) return (“You’re getting plenty of sleep! Maybe even too much!”); else return (“Get some more shut eye!”); }
+
+console.log(sleepCheck(10)); console.log(sleepCheck(5)); console.log(sleepCheck(8));
+
+How come it’s like this? I’ve been writing code like the first example on all exercises and it’s been right, but now it’s not? And later on, in the “Rock, paper, scissors”-section, it starts writing code with double curly brackets. One after the function is declared and one after the if statement is written, and then two at the end. And like the example above, no semicolons.. Like this:
+
+var compare = function(choice1, choice2) { if(choice1 === choice2) { return “The result is a tie”; } };
+
+Which one of these three is right, or which ones, and when?
+
+/ confused",
+How To Escape '{}' Curly braces In A String?,https://www.askpython.com/python/string/escape-curly-braces-string,31 мая 2023 г.,"The curly braces are used everywhere in Python. Most of the time, you can see these curly braces {} during dictionary, or set initialization. The basic syntax of the dictionary that contains key-value pairs is enclosed within this curly braces {}. But, in strings, we can use these curly braces to replace the value in the strings. In this article, we will see how to escape the curly braces {} in a string.
+
+There are various methods in Python to escape this curly-braces ‘{}’ like format method, and f-string method. Let’s see these methods and implementations.
+
+Use of Curly Braces in Python
+
+Dictionary initialization
+
+The curly braces are used to initialize the dictionaries in Python. All the key-value pairs are enclosed within the curly braces. The basic syntax of the dictionary involves this curly braces {} in the code.
+
+Set Initialization
+
+The basic syntax of a set also involves the use of curly braces. This set is a type of collection of elements arranged in an unordered manner.
+
+Formatting of Strings
+
+In this article, we will see the use of curly braces for string formatting. The curly braces are used to replace the value using the format method and f-string methods. This is a very useful method for the customization of strings. Let’s see how these curly braces will escape from the strings.
+
+Format Method to Escape Curly Braces {} in a String
+
+Format method is a built-in method in Python that helps to replace the values from the string. Usually, this format method is used for the customization of the strings. For example, using this format method, we can add different string values, float numbers, characters, or integers to the string after providing curly braces. Here, the curly braces are used instead of the values in the string. During execution, these values will be replaced with the help of the format method.
+
+Name = ""Snehal"" Age = 7 Result = ""Roll No.is {1} and my name is {0}"".format(Name, Age) print(Result)
+
+This code replaces the curly braces with the variables provided in the list of arguments. These arguments are name and age. .format method here is used to replace the value. Let’s see the implementation.
+
+Format Method To Escape Curly Braces
+
+This format method successfully replaces the curly braces from the string.
+
+F-string Method to Escape Curly Braces {} in a String
+
+The f-string method is very similar to the format method. The f-string is a formatted string literal. This method uses ‘f’ as a prefix before a string. The values initialized at the start of the code will be replaced using the f-string method. This f-string method can replace the curly braces using integers, characters, floats, or string values.
+
+Name = ""Snehal"" Roll_No = 7 Result = f""My name is {Name} and my roll No is {Roll_No}."" print(Result)
+
+In this code, the ‘f’ is used as a prefix in the string. The f-string method replaces the Name and Roll_No values from the string. Let’s see the results.
+
+F String To Escape Curly Braces In A String
+
+In the results, the curly braces are successfully replaced by the values in the output.
+
+Double Curly Braces in Python
+
+The double curly braces in Python print only one pair of curly braces in the string. For example, this double curly braces technique is interpreted as an escape character in Python. Simply put, one pair of curly braces will be eliminated from the input. Let’s see the execution to understand the technique.
+
+Value = ""{{ Roll No: }}{0} "".format(7) print(Value)
+
+This code will replace the double curly braces with single curly braces. Here, the format method includes a number in the string. Let’s see the results.
+
+Double Curly Braces
+
+In this output, only one pair of curly brace is printed.
+
+Summary
+
+This article covers the methods to escape curly braces in Python. This article contains three different methods: format method, f-string method, or double curly braces technique, to escape the curly braces from the string. The use of curly braces in Python is also covered in this article. Hope you will enjoy this article.
+
+References
+
+Do read the official documentation of formatting strings for more details.",
+How To Use The 4 Types of Brackets | Dictionary.com,https://www.thesaurus.com/e/grammar/types-of-brackets/,29 мар. 2022 г.,"When considering punctuation marks, there are four pairs of marks that may be referred to as a type of bracket. They are parentheses, square brackets, curly brackets, and angle brackets. Of these four, parentheses are by far the most commonly used and are the punctuation marks that most writers are likely most familiar with. Although you may not get many chances yourself to bust out a pair of curly brackets or angle brackets, it doesn’t hurt to learn what they are typically used for so they don’t catch you by surprise.
+
+Types of brackets
+
+Parentheses ()
+
+Let’s look at each of the four different types of brackets, moving from the pair you are most likely to see to the pair you will almost never see (in writing, at least).
+
+Despite being the most commonly used of the four types of brackets, parentheses are still less common than other punctuation marks in formal writing. Most writers will tend to use them sparingly but effectively.
+
+Parentheses have a lot of different uses. One particularly common use is to insert additional but unessential information, such as a writer’s commentary, into a sentence.
+
+Last year, the first pitch was thrown by Santa Claus (yes, really) .
+
+. Bananas are good for you (and tasty, too).
+
+Some other information that might be contained within parentheses includes sources, references, abbreviations, acronyms, telephone area codes, and lifespans.
+
+Parentheses examples
+
+The owners loved dressing their dogs up in funny outfits. (The dogs were much less enthusiastic about it.)
+
+The cat population doubled over the past 10 years. (Purrcy and Kitchins, 2005)
+
+The shuttle was built by the National Aeronautics and Space Administration (NASA) .
+
+. Edward I of England (1239–1307) was called “Edward Longshanks.”
+
+Know your brackets? Then head over and take our quick quiz on the different types.
+
+Square brackets []
+
+Square brackets, often just called brackets in American English, are typically only used with quotations in formal writing. Square brackets are used to indicate to a reader that the writer added their own words to a quote, added additional context, or otherwise made a change to a quote that wasn’t originally there. The term sic is also often used in a pair of square brackets to indicate that a quote originally had a grammatical error in it, and the writer didn’t make a mistake when reprinting it.
+
+Square bracket examples
+
+The following examples show the different ways that square brackets are typically used with quotations.
+
+The president said, “He [the Polish ambassador] is a tough negotiator, but I’m confident we will reach an agreement that is best for both countries.”
+
+is a tough negotiator, but I’m confident we will reach an agreement that is best for both countries.” The legendary pop singer said that “ [she] would come back [to Miami] every summer if [she] could.”
+
+would come back every summer if could.” My textbook says, “The explorers traveled down the Mississipi [sic] River.”
+
+Curly brackets {}
+
+Curly brackets, also known as braces or curly braces, are rarely used in formal writing and are more common in other fields such as science, math, and computing. Some style guides will allow them to be used for one specific purpose: grouping together a set.
+
+The pastries {cakes, pies, croissants, danishes} looked delicious.
+
+Informally, curly brackets may also be used to attempt to avoid confusion if a writer is using multiple sets of brackets in the same sentence.
+
+Clifford (a {very, very} big dog) stomped his way down the street.
+
+Both of these uses, though, are rare and many style guides and grammar resources may not have any formal use for curly brackets in writing. It is entirely possible that you may never read anything that uses curly brackets.
+
+Curly bracket examples
+
+The following examples show how curly brackets might be used. Keep in mind that these sentences may not be considered appropriate in formal writing.
+
+The circus animals {lions, tigers, elephants, monkeys} were very well trained.
+
+were very well trained. Madame Mysteria (who I {sadly} never met) was a legendary fortune teller.
+
+Angle brackets <>
+
+Angle brackets have no formal use in writing, at least in English. In other languages, double sets of angle brackets are sometimes used in place of quotation marks. Like curly brackets, you are much more likely to see angle brackets used in other fields, such as math and computing.
+
+Informally, angle brackets might be used in place of parentheses to insert asides or you might see them used to introduce a website in an older piece of writing.
+
+Angle bracket examples
+
+The following examples show how angle brackets might be used in writing. These examples would typically not be considered appropriate in formal writing.
+
+The car was both very fast and very pink. << Much too pink if you ask me >>
+
+If you’re curious, you can find the rest of Chef Baker’s recipes at <www.bakeittillyoumakeit.yum>
+
+Punctuate perfectly with Grammar Coach™
+
+Confused about punctuation and its proper use? The Thesaurus.com Grammar Coach™ platform makes writing papers, essays, emails, and a whole lot more a whole lot easier. This writing tool uses machine-learning technology uniquely designed to catch grammar as well as spelling errors. Its Synonym Swap will find the best nouns, adjectives, and more to help say what you really mean, guiding you toward clearer, stronger, writing.",
+How do I make curly brackets using a norwegian keyboard?,https://www.codecademy.com/forum_questions/512dbedc8d59e4db20000e09,,"It won’t let me paste a picture here, so look at this link if you’d be so kind.
+
+https://www.google.com/search?hl=en&q=how+to+make+square+brackets+on+keyboard&bav=on.2,or.r_gc.r_pw.r_cp.r_qf.&biw=1366&bih=667&um=1&ie=UTF-8&tbm=isch&source=og&sa=N&tab=wi&ei=NL0tUYuFBeiJ4ATA24HwCA#um=1&hl=en&tbm=isch&sa=1&q=norwegian+keyboard&oq=norwegian+keyboard&gs_l=img.3..0l2j0i24l8.1737.34529.0.34714.20.10.1.9.10.0.120.702.9j1.10.0...0.0...1c.1.4.img.yH7evkEB9Tc&bav=on.2,or.r_gc.r_pw.r_cp.r_qf.&bvm=bv.42965579,d.bGE&fp=bc3c4f37f0e0c15a&biw=1366&bih=667&imgrc=qGfs-s1ImjkS7M%3A%3BRdHzA4ERy6T9ZM%3Bhttp%253A%252F%252Fupload.wikimedia.org%252Fwikipedia%252Fen%252Fc%252Fc9%252FKeyboard_Layout_Norwegian.png%3Bhttp%253A%252F%252Fen.wikipedia.org%252Fwiki%252FFile%253AKeyboard_Layout_Norwegian.png%3B546%3B186",
+"In Lean, what do double curly brackets mean?",https://proofassistants.stackexchange.com/questions/66/in-lean-what-do-double-curly-brackets-mean,8 февр. 2022 г.,"$\begingroup$
+
+Single braces {⋯} indicate a maximally inserted implicit argument and {{⋯}} a weakly inserted implicit argument, as explained in the manual.
+
+Consider the definition of the identity map in which the first argument is implicit:
+
+def id {α : Type u} (x : α) : α := x
+
+In an expression such as id 3 Lean will figure out the implicit argument α to be ℕ . But what will it do when faced just with id , not applied to anything? There are two options:
+
+It could create a new meta-variable ?M (also known as an existential variable) and convert the lone id to id ?M . The value of ?M will be determined later as more information becomes available. This is known as a maximally inserted implicit argument, because it is inserted whenever possible. The above definition does so. Indicate that the argument should not be maximally inserted by using {{⋯}} instead: def id {{α : Type u}} (x : α) : α := x Now, when faced with id , Lean will read it precisely as id without inserting anything. This strategy is known as weakly inserted implicit arguments.
+
+Let's try it out:
+
+universe u def id₁ {α : Type u} (x : α) : α := x #check id₁ -- output: id₁ : ?M_1 → ?M_1 def id₂ {{α : Type u}} (x : α) : α := x #check id₂ -- output: id₂ : Π ⦃α : Type u_1⦄, α → α",
+Indentation AND curly brackets : r/ProgrammingLanguages,https://www.reddit.com/r/ProgrammingLanguages/comments/zkym31/indentation_and_curly_brackets/,13 дек. 2022 г.,"I'm curious if there any PL out there that use curly brackets, but also are sensitive to indentation? Does this redundancy help to improve diagnostics?",
+"Is there a proper term for ""curly braces"" among programmers",https://stackoverflow.com/questions/34188586/is-there-a-proper-term-for-curly-braces-among-programmers,9 дек. 2015 г.,"Use whatever floats your boat, in most contexts; on account of regional flavours. If you feel extra formal, you might be using ""curly bracket"" instead.
+
+Wikipedia shows many variations on names for the { } symbols. https://en.wikipedia.org/wiki/Bracket#Names_for_various_bracket_symbols
+
+You could also imply them, sometimes, by talking about blocks, loops, switch block, if block, and other similar structures if the programming language in question features them. Programmers will just visualize the brackets as being present, as necessary:
+
+The else-block is never executed because X.
+
+Another way: imply the type by its relative position/usage. If the context is right, it'll be a curly bracket.",
+JavaScript in JSX with Curly Braces,https://react.dev/learn/javascript-in-jsx-with-curly-braces,,"JSX lets you write HTML-like markup inside a JavaScript file, keeping rendering logic and content in the same place. Sometimes you will want to add a little JavaScript logic or reference a dynamic property inside that markup. In this situation, you can use curly braces in your JSX to open a window to JavaScript. You will learn How to pass strings with quotes
+
+How to reference a JavaScript variable inside JSX with curly braces
+
+How to call a JavaScript function inside JSX with curly braces
+
+How to use a JavaScript object inside JSX with curly braces Passing strings with quotes When you want to pass a string attribute to JSX, you put it in single or double quotes:
+
+App.js App.js Reset Fork export default function Avatar ( ) { return ( < img className = ""avatar"" src = ""https://i.imgur.com/7vQD0fPs.jpg"" alt = ""Gregorio Y. Zara"" /> ) ; }
+
+Here, ""https://i.imgur.com/7vQD0fPs.jpg"" and ""Gregorio Y. Zara"" are being passed as strings. But what if you want to dynamically specify the src or alt text? You could use a value from JavaScript by replacing "" and "" with { and } :
+
+App.js App.js Reset Fork export default function Avatar ( ) { const avatar = 'https://i.imgur.com/7vQD0fPs.jpg' ; const description = 'Gregorio Y. Zara' ; return ( < img className = ""avatar"" src = { avatar } alt = { description } /> ) ; }
+
+Notice the difference between className=""avatar"" , which specifies an ""avatar"" CSS class name that makes the image round, and src={avatar} that reads the value of the JavaScript variable called avatar . That’s because curly braces let you work with JavaScript right there in your markup! Using curly braces: A window into the JavaScript world JSX is a special way of writing JavaScript. That means it’s possible to use JavaScript inside it—with curly braces { } . The example below first declares a name for the scientist, name , then embeds it with curly braces inside the <h1> :
+
+App.js App.js Reset Fork export default function TodoList ( ) { const name = 'Gregorio Y. Zara' ; return ( < h1 > { name } 's To Do List </ h1 > ) ; }
+
+Try changing the name ’s value from 'Gregorio Y. Zara' to 'Hedy Lamarr' . See how the list title changes? Any JavaScript expression will work between curly braces, including function calls like formatDate() :
+
+App.js App.js Reset Fork const today = new Date ( ) ; function formatDate ( date ) { return new Intl . DateTimeFormat ( 'en-US' , { weekday : 'long' } ) . format ( date ) ; } export default function TodoList ( ) { return ( < h1 > To Do List for { formatDate ( today ) } </ h1 > ) ; }
+
+Where to use curly braces You can only use curly braces in two ways inside JSX: As text directly inside a JSX tag: <h1>{name}'s To Do List</h1> works, but <{tag}>Gregorio Y. Zara's To Do List</{tag}> will not. As attributes immediately following the = sign: src={avatar} will read the avatar variable, but src=""{avatar}"" will pass the string ""{avatar}"" . Using “double curlies”: CSS and other objects in JSX In addition to strings, numbers, and other JavaScript expressions, you can even pass objects in JSX. Objects are also denoted with curly braces, like { name: ""Hedy Lamarr"", inventions: 5 } . Therefore, to pass a JS object in JSX, you must wrap the object in another pair of curly braces: person={{ name: ""Hedy Lamarr"", inventions: 5 }} . You may see this with inline CSS styles in JSX. React does not require you to use inline styles (CSS classes work great for most cases). But when you need an inline style, you pass an object to the style attribute:
+
+App.js App.js Reset Fork export default function TodoList ( ) { return ( < ul style = { { backgroundColor : 'black' , color : 'pink' } } > < li > Improve the videophone </ li > < li > Prepare aeronautics lectures </ li > < li > Work on the alcohol-fuelled engine </ li > </ ul > ) ; }
+
+Try changing the values of backgroundColor and color . You can really see the JavaScript object inside the curly braces when you write it like this: < ul style = {
+
+{
+
+backgroundColor : 'black' ,
+
+color : 'pink'
+
+}
+
+} > The next time you see {{ and }} in JSX, know that it’s nothing more than an object inside the JSX curlies! Pitfall Inline style properties are written in camelCase. For example, HTML <ul style=""background-color: black""> would be written as <ul style={{ backgroundColor: 'black' }}> in your component. More fun with JavaScript objects and curly braces You can move several expressions into one object, and reference them in your JSX inside curly braces:
+
+App.js App.js Reset Fork const person = { name : 'Gregorio Y. Zara' , theme : { backgroundColor : 'black' , color : 'pink' } } ; export default function TodoList ( ) { return ( < div style = { person . theme } > < h1 > { person . name } 's Todos </ h1 > < img className = ""avatar"" src = ""https://i.imgur.com/7vQD0fPs.jpg"" alt = ""Gregorio Y. Zara"" /> < ul > < li > Improve the videophone </ li > < li > Prepare aeronautics lectures </ li > < li > Work on the alcohol-fuelled engine </ li > </ ul > </ div > ) ; } Show more
+
+In this example, the person JavaScript object contains a name string and a theme object: const person = {
+
+name : 'Gregorio Y. Zara' ,
+
+theme : {
+
+backgroundColor : 'black' ,
+
+color : 'pink'
+
+}
+
+} ; The component can use these values from person like so: < div style = { person . theme } >
+
+< h1 > { person . name } 's Todos </ h1 > JSX is very minimal as a templating language because it lets you organize data and logic using JavaScript. Recap Now you know almost everything about JSX: JSX attributes inside quotes are passed as strings.
+
+Curly braces let you bring JavaScript logic and variables into your markup.
+
+They work inside the JSX tag content or immediately after = in attributes.
+
+in attributes. {{ and }} is not special syntax: it’s a JavaScript object tucked inside JSX curly braces.",
+Meaning of curly Braces in Manpages,https://askubuntu.com/questions/787691/meaning-of-curly-braces-in-manpages,16 июн. 2016 г.,"I looked here help.ubuntu.com (and on the german ubuntu-user wiki) but couldnt find an answer.
+
+
+
+I dont know what they mean e.g. in the manpage of mpstat :
+
+
+
+SYNOPSIS mpstat [ -A ] [ -u ] [ -V ] [ -I { keyword [,...] | ALL } ] [ -P { cpu [,...] | ON | ALL } ] [ interval [ count ] ]",
+Microsoft previews new F# syntax for string interpolation,https://www.infoworld.com/article/3704271/microsoft-previews-new-f-syntax-for-string-interpolation.html,8 авг. 2023 г.,"Microsoft is previewing new syntax for string interpolation in F#, an improvement intended to make it easier to work with interpolated strings.
+
+Interpolated strings allow developers to embed F# expressions into string literals. But they can become cumbersome when dealing with text that contains many curly braces. The F# interpolation syntax addresses this. Announced July 27 and modeled after how interpolation works in C# raw strings, the new syntax maintains backward compatibility with F#’s triple-quoted strings.
+
+The new syntax is an extension of the existing F# syntax for interpolated strings. Developers can use multiple $ characters and corresponding numbers of opening and closing curly braces for interpolation. The same rules apply to % characters, which have special meaning in F# interpolated strings as format specifiers.
+
+An example of where this new syntax can be useful is when working with CSS literals in a front-end F# application, such as with the Fable F# compiler for JavaScript. The new syntax lets developers write CSS without having to worry about escaping curly braces. Instead, developers can focus on the interpolation expressions. To try out this new feature, developers must use the flag --langversion:preview .
+
+F# is a language that offers first-class functions, lightweight syntax, pattern matching, and async programming, according to Microsoft. It is immutable by default. Other recent improvements for F# developers include a preview of F# type and parameter hints in Visual Studio. Installation instructions for the language can be found on learn.microsoft.com.",
+Optional curly brackets - language design,https://internals.rust-lang.org/t/optional-curly-brackets/16091,7 февр. 2022 г.,"A lot of programming languages include a feature called optional curly brackets where you can leave out the brackets if your statement is just one line of code.
+
+Example in java:
+
+if(doHelloWorld) System.out.println(""Hello world!"");
+
+It would be cool too if you could remove the semicolon to make it directly return.
+
+Example:
+
+if mycondition ""something"" // This would be the same as if mycondition { return ""something""; }
+
+Being able to leave out these brackets result into the ability to write cleaner code faster, and almost everyone has it so i dont get why rust still doesnt.",
+"Parentheses, Square Brackets and Curly Braces in Python",https://discovery.cs.illinois.edu/guides/Python-Fundamentals/brackets/,22 мар. 2024 г.,"Parentheses, Square Brackets and Curly Braces in Python
+
+Introduction
+
+Understanding the distinct roles of parentheses, square brackets, and curly braces is crucial for proper syntax and functionality in Python code.
+
+Generally, parentheses () are used for grouping expressions, defining functions or passing arguments, and defining tuples. Square brackets [] are used for creating lists, indexing elements and slicing snippets. Curly braces {} serve two main purposes: defining sets (unordered collections of unique elements) and dictionaries (key-value pairs).
+
+Parentheses ()
+
+Grouping Expressions
+
+Parentheses () is often used to explicitly define the order of operations, where expressions within parentheses are evaluated first.
+
+Below is an example of how adding parentheses changes the result of an arithmetic operation and a logic expression.
+
+print ( 3 + 4 * 10 ) print ( ( 3 + 4 ) * 10 ) print ( 3 + ( 4 * 10 ) ) 43
+
+70
+
+43 Arithmetic Expression Example
+
+result1 = True or False and False print ( ""Result without parentheses:"" , result1 ) result2 = ( True or False ) and False print ( ""Result with parentheses:"" , result2 ) Result without parentheses: True
+
+Result with parentheses: False Logic Expression Example
+
+Defining and Calling Functions
+
+To define a function in Python, the keyword def is used, followed by the function name and a pair of round brackets or parentheses. These parentheses serve to declare input parameters for the function.
+
+def greet ( name ) : print ( ""Hello "" + name ) greet ( ""World"" ) Hello World Defining and Calling Functions
+
+Defining a Tuple
+
+A tuple in Python is an ordered and immutable collection of elements, defined by enclosing values within parentheses. The elements in a tuple follows certain sequence while modifications such as appending, removal, alteration are not allowed. Moreover, it may contain heterogeneous elements, allowing for elements of different data types.Tuples are advantageous when a fixed and unchangeable sequence of elements is needed.
+
+my_tuple = ( 1 , 'hello' , 3.14 ) Defining a tuple
+
+Square Brackets []
+
+Creating Lists
+
+Square brackets can be used to create a list, an ordered and mutable collection of elements.
+
+empty = [ ] data = [ 1 , 2 , 3 ] List creation
+
+Indexing Elements and Slicing Snippets
+
+To retrieve an element from a collection such as a list or dictionary, square brackets [] are used.
+
+my_list = [ ""apple"" , ""banana"" , ""orange"" ] my_dictionary = { ""Id"" : 1 , ""Name"" : ""Alice"" , ""City"" : ""Champaign"" } my_tuple = ( 1 , 'hello' , 3.14 ) print ( my_list [ 1 ] ) print ( my_dictionary [ ""City"" ] ) print ( my_tuple [ 1 ] ) banana Champaign hello Indexing a certain element
+
+ls = [ 0 , 1 , 2 , 3 , 4 , 5 ] print ( ls [ : ] ) print ( ls [ 1 : 3 ] ) [0, 1, 2, 3, 4, 5] [1, 2] Getting a Snippet of Code
+
+3.
+
+Square brackets are helpful in selecting out specific rows or columns from a dataframe.
+
+import pandas as pd df = pd . DataFrame ( [ { 'team' : 'Chicago Bulls' , 'state' : 'Illinois' , 'championships' : 6 } , { 'team' : 'Golden State Warriors' , 'state' : 'California' , 'championships' : 6 } , { 'team' : 'Los Angeles Lakers' , 'state' : 'California' , 'championships' : 17 } , { 'team' : 'Boston Celtics' , 'state' : 'Massachusetts' , 'championships' : 17 } , { 'team' : 'Miami Heat' , 'state' : 'Florida' , 'championships' : 3 } ] ) df team state championships Chicago Bulls Illinois 6 Golden State Warriors California 6 Los Angeles Lakers California 17 Boston Celtics Massachusetts 17 Miami Heat Florida 3 Dataframe selection
+
+df [ [ ""team"" ] ] team Chicago Bulls Golden State Warriors Los Angeles Lakers Boston Celtics Miami Heat Access a Column of the Dataframe
+
+df [ [ ""team"" , ""state"" ] ] team state Chicago Bulls Illinois Golden State Warriors California Los Angeles Lakers California Boston Celtics Massachusetts Miami Heat Florida Access multiple columns of dataframe
+
+Square brackets can be used to select out certain rows.
+
+df [ df [ ""championships"" ] > 10 ] team state championships Los Angeles Lakers California 17 Boston Celtics Massachusetts 17 Dataframe selection
+
+Curly Braces {}
+
+1.Creating Dictionaries
+
+Curly Braces {} are often used in dictionary creation. A dictionary in Python is an unordered collection of key-value pairs. Each key must be unique, and it is associated with a specific value. Dictionaries provide a flexible and efficient way to store and retrieve data using meaningful identifiers.
+
+empty = { } data = { ""Id"" : 1 , ""Name"" : ""Alice"" , ""City"" : ""Champaign"" } print ( data ) {""Id"": 1, ""Name"": ""Alice"", ""City"": ""Champaign""} Creating dictionary
+
+Creating Sets
+
+Curly braces {} can also be used to define sets, which are unordered collections of unique elements. Sets are distinct from lists or tuples as they do not allow duplicate values. Sets support various mathematical operations like union, intersection, and difference, making them useful for tasks involving distinct elements and set operations in Python.",
+"Square Brackets, Curly Brackets, Angle Brackets, Oh My!",https://www.scribendi.com/academy/articles/square_brackets_curly_brackets_angle_brackets.en.html,,"Learn how to use brackets effectively in your writing
+
+Let me give you folks a glimpse of life at Scribendi.com. When we're not madly editing until the wee hours of the morning (which, frankly, we are most of the time), we spend the rest of our time discussing and writing articles designed to help you (our wonderful customers) become better writers.
+
+When I was assigned the article on brackets, I was overjoyed (okay, not really). Truthfully, I wasn't sure how I was going to write an entire article on brackets, but, as I discovered in my research, brackets are actually more complex than most people realize.
+
+Square Brackets
+
+Sometimes, square brackets are used to make a piece of text clearer. When a quote used in a paper contains the word ""it,"" the author of the paper will frequently use brackets to clarify the antecedent. This is done for a number of reasons, but most frequently because when a writer uses a quote in a paper, the reader is encountering the quote out of its original context and since readers rely on context to determine the antecedent, the antecedent needs to be provided. For example:
+
+Blanche Dubois states that ""While Benjamin Franklin is frequently credited as discovering it [electricity], the ancient Egyptians actually deserve most of the credit.""
+
+Square brackets are also used to enclose the Latin word sic, which means ""so, thus."" In academic writing, [sic] is used to denote an error that originally appears in the source material and is not attributable to the author who is using the quote. For example:
+
+In a letter to the CK Daily Post, General Ross wrote that ""extended tours of duty are not beneficial for maintaining a positive group moral [sic].""
+
+Square brackets are also used to indicate that a certain portion of a quote has been omitted.
+
+For example, Gore Vidal is quoted as saying ""Andy Warhol is the only genius I've met […] with an IQ of 60.""
+
+Curly Brackets
+
+Unless you are a physicist or a highly skilled mathematician, you are unlikely to encounter curly brackets in your research or reading. If you're a programmer, you would most assuredly use these bygone little squiggly marks. But much like Hypercolor shirts or wearing spandex shorts for anything other than biking, curly brackets have largely fallen out of fashion. But just in case you do encounter curly brackets outside of the above-mentioned fields, they are likely indicating a series of equal choices. For example:
+
+Select your pizza topping {pepper, onion, sausage, tomato, feta, anchovies, bacon, sun-dried tomatoes, chicken, broccoli} and follow me.
+
+The only other place you may encounter curly brackets is on forums or when instant messaging. In this context, they are used to indicate a hug. The way the curly bracket is facing indicates the direction of the hug. A curly bracket that opens to the right is a right hug and a curly bracket that opens to the left is a left hug. For example:
+
+AlaskanWolfHunter: hey, just thought id let u know im bringing home some flowers
+
+({)WasillaMomof5: aw….thanks boo…(})
+
+Angle Brackets
+
+Also known as chevrons, these types of brackets frequently appear in mathematics and quantum physics. But unlike curly brackets, you may actually encounter them when reading outside of those disciplines, although not with any type of frequency. Angle brackets may occur in linguistics. For example:
+
+The English word /kæt/ is spelled ⟨cat⟩.
+
+Sometimes, although not often, angle brackets are used to indicate internal thought. For example:
+
+Todd handed me a flower. ""Smell it.""
+
+I took a sniff. ""It's nice."" <What a disgusting stench!>
+
+Angle brackets are used frequently in comic books to denote someone speaking in another language. Double angle brackets are sometimes used in lieu of quotation marks. They are also used in computer-mediated communication to indicate an action or status. For example:
+
+< <waves>>
+
+<<offline>>
+
+Conclusion
+
+It's important not to overuse brackets or rely on them too heavily. Some writers use brackets in place of commas. Others think the whole problem of brackets is better left alone. But you can't avoid problems forever. At some point, you may have to use brackets or you may encounter them in your research, in which case, we hope this article has helped.
+
+If you're still unsure about how and when to use brackets, you can always send your writing to the experts at Scribendi for a thorough, professional proofread.
+
+Polish Your Writing with Professional Proofreading
+
+Have Your Essay Expertly Proofread, or Get a Free Sample",
+Use of dash in between curly brackets? {{- code -}} - support,https://discourse.gohugo.io/t/use-of-dash-in-between-curly-brackets-code/11252,28 мар. 2018 г.,"Hi,
+
+I have a question about the use of a dash in between the curly brackets used in Hugo.
+
+I occasionally come across them in the documentation or used in example themes, but have never found an explanation.
+
+As far as i tested, their presence has no real effect?
+
+Below is an example from https://gohugo.io/templates/shortcode-templates/ :
+
+{{- $src := .Get “src” -}}
+
+{{- with .Parent -}}
+
+<img src=""{{$src}}"" class=""{{.Get “class”}}-image"">
+
+{{- else -}}
+
+
+
+{{- end }}
+
+Is there documentation on this that i have managed to overlook?
+
+All help is appreciated!",
+Vacancies | UNICEF Careers,https://jobs.unicef.org/cw/en-us/search/?search-keyword=%20%E2%80%9C%E5%9C%9B%EC%9B%B9%EB%AC%B8%EC%84%9C%20%EA%B5%AC%EA%B8%80%EA%B0%95%EC%9D%98%20%EF%BD%9B%40hhu999%EF%BD%9D%EB%B8%94%EB%9E%99%20%ED%82%A4%EC%9B%8C%EB%93%9C%EC%B2%AB%ED%8E%98%EC%9D%B4%EC%A7%80%EA%B4%91%EA%B3%A0%E3%8D%9Cseo%EC%83%81%EC%9C%84%EB%85%B8%EC%B6%9C%EC%A0%84%EB%AC%B8%EA%97%B5%EC%9B%B9%EB%AC%B8%EC%84%9C%20%EA%B5%AC%EA%B8%80%EC%83%81%EC%9C%84%EC%A0%84%EB%AC%B8%E2%80%9D%20%C2%B7%20Thipage%20haleft%20the%20building.%20%C2%B7%20The%20page%20youre%C2%A0.szp,,"UNICEF works in some of the world’s toughest places, to reach the world’s most disadvantaged children. To save their lives. To defend their rights. To help them fulfil their potential. Across 190 countries and territories, we work for every child, everywhere, every day, to build a better world for everyone. And we never give up. The Division of Private Fundraising and Partnerships (PFP) aims to achieve results for children by maximizing UNICEF's private fundraising and advocacy around the world. To carry out this mission, PFP coordinates fundraising activities and private sector partnerships with offices in over 50 countries. The global team operates to support and enable countries in their fundraising, and this role works within that approach to support and develop the capabilities of teams, as well as supporting or leading the development of relevant global strategies. Individual Giving is one of UNICEF’s most critical sources of revenue and the PFP Individual Giving team, which this role would be part of, focuses on supporting countries to grow their individual giving revenue. The PFP Individual Giving team based in Geneva is a lead participant in the Supporter Engagement Strategy, which aims to increase the global acquisition and engagement of UNICEF's diverse supporter base, including donors, advocates, and volunteers. A key part of the strategy is to replace the incumbent CRM systems currently in place in 21 country offices with Salesforce-based technology. The role of Marketing Cloud Specialist will be instrumental in working with markets to redefine their fundraising approach and develop Marketing Cloud to that benefit.
+
+Location: Switzerland
+
+Deadline:",
+What curly braces in math means : r/calculus,https://www.reddit.com/r/calculus/comments/150m2w9/what_curly_braces_in_math_means/,15 июл. 2023 г.,"Hello, I do see those brackets a lot, but i know no thing about them, does it mean that f(x) is Function with multiple graph, Im self tought so no one to ask, Thanks",
+Why are curly braces in programming languages important?,https://www.theserverside.com/answer/Why-are-curly-braces-in-programming-languages-important,5 нояб. 2020 г.,"At their core, all programming languages share similarities. In their most basic form, they all break down into the same common sets of functions:
+
+data variable declarations
+
+conditional logic
+
+iterative functions
+
+Computer programs can use data, evaluate if-then conditions on the data and use extremely fast iterative loops to perform these functions. In software programs, these functions get organized into methods. Object-oriented languages further organize these functions into classes or objects. Regardless of whether a given programming language is object-oriented or procedural, these fundamental concepts still apply.
+
+However, one major difference hinges on how developers use curly braces in programming languages.
+
+Curly-brace code blocks Different programming languages have various ways to delineate the start and end points of a programming structure, such as a loop, method or conditional statement. For example, Java and C++ are often referred to as curly brace languages because curly braces are used to define the start and end of a code block. public void flagTest() { boolean flag = true; int i = 10; if (flag == true) { for( int i=0; i<10; i++ ) { System.out.print(""flag is true""); } } flag = false; }
+
+10 popular curly-brace languages The use of curly braces in programming languages dates back to 1966 with the Basic Combined Programming Language (BCPL). As BCPL grew in popularity, it then inspired the C programming language and its successor C++. C and C++ inspired Java, and now the entire ecosystem of peripheral JVM languages incorporate curly braces into their syntax. Some of the most prominent languages that use curly braces in programming include: Java C++ JavaScript Rust Groovy Kotlin Perl PHP Scala Swift Instead of curly braces in programming, some languages -- such as Python -- use tabs, indentation and carriage returns to delineate blocks of code.",
+Why double curly brackets in `\long\def\bold#1{{\bf#1}}`,https://tex.stackexchange.com/questions/643765/why-double-curly-brackets-in-long-def-bold1-bf1,11 мая 2022 г.,"I'm reading The TeXbook by Knuth.
+
+Page 205 has
+
+If you actually want a control sequence to allow arguments with \par tokens, you can deﬁne it to be a “long” macro by saying ‘\long’ just before ‘\def’. For example, the \bold macro deﬁned by \long\def\bold#1{{\bf#1}} is capable of setting several paragraphs in boldface type...
+
+I tried to have only one set of curly brackets. It worked with no problems.
+
+\long\def\bold#1{\bf#1} \bold{Hello world}",
+Why the round brackets before the curly brackets with map?,https://forum.freecodecamp.org/t/why-the-round-brackets-before-the-curly-brackets-with-map/488081,8 дек. 2021 г.,"In the solution for the challenge they use a code like mine. But i am a bit confused, why is there a round bracket before the curly bracket and i dont understand it fully.
+
+I thought the curly brackets are the body of the callback function. But now is there a round bracket before and then the curly brackets seem to “command” map to add an object to the new Array(ratings) for every selected element.
+
+My intiution would say this the correct code:
+
+const ratings = watchList.map(movie => {{title: movie[""Title""], rating: movie[""imdbRating""]}});
+
+So the first curly bracket open the body of the callbackfunction. Then comes another curlybracket to “say” to map to create an object for every element. And at the end they are both closed and the round bracket close the callbackfunction. But this intutive solution is wrong? Why?
+
+Or it is a very specific detail and i just have to learn to use the other way as a beginner?
+
+Thanks for your help.
+
+Your code so far
+
+const ratings = watchList.map(movie => ({title: movie[""Title""], rating: movie[""imdbRating""]}));
+
+Your browser information:
+
+User Agent is: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0
+
+Challenge: Use the map Method to Extract Data from an Array
+
+Link to the challenge:",
+curly - ESLint - Pluggable JavaScript Linter,https://eslint.org/docs/latest/rules/curly,,"curly
+
+Enforce consistent brace style for all control statements
+
+🔧 Fixable Some problems reported by this rule are automatically fixable by the --fix command line option
+
+JavaScript allows the omission of curly braces when a block contains only one statement. However, it is considered by many to be best practice to never omit curly braces around blocks, even when they are optional, because it can lead to bugs and reduces code clarity. So the following:
+
+if ( foo ) foo ++ ; 1
+
+
+
+Can be rewritten as:
+
+if ( foo ) { foo ++ ; } 1
+
+2
+
+3
+
+
+
+There are, however, some who prefer to only use braces when there is more than one statement to be executed.
+
+Rule Details
+
+This rule is aimed at preventing bugs and increasing code clarity by ensuring that block statements are wrapped in curly braces. It will warn when it encounters blocks that omit curly braces.
+
+Options
+
+all
+
+Examples of incorrect code for the default ""all"" option:
+
+Open in Playground if ( foo ) foo ++ ; while ( bar ) baz ( ) ; if ( foo ) { baz ( ) ; } else qux ( ) ; 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+
+
+Examples of correct code for the default ""all"" option:
+
+Open in Playground if ( foo ) { foo ++ ; } while ( bar ) { baz ( ) ; } if ( foo ) { baz ( ) ; } else { qux ( ) ; } 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+
+
+multi
+
+By default, this rule warns whenever if , else , for , while , or do are used without block statements as their body. However, you can specify that block statements should be used only when there are multiple statements in the block and warn when there is only one statement in the block.
+
+Examples of incorrect code for the ""multi"" option:
+
+Open in Playground if ( foo ) { foo ++ ; } if ( foo ) bar ( ) ; else { foo ++ ; } while ( true ) { doSomething ( ) ; } for ( var i = 0 ; i < items . length ; i ++ ) { doSomething ( ) ; } 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+
+
+Examples of correct code for the ""multi"" option:
+
+Open in Playground if ( foo ) foo ++ ; else foo ( ) ; while ( true ) { doSomething ( ) ; doSomethingElse ( ) ; } 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+
+
+multi-line
+
+Alternatively, you can relax the rule to allow brace-less single-line if , else if , else , for , while , or do , while still enforcing the use of curly braces for other instances.
+
+Examples of incorrect code for the ""multi-line"" option:
+
+Open in Playground if ( foo ) doSomething ( ) ; else doSomethingElse ( ) ; if ( foo ) foo ( bar , baz ) ; 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+
+
+Examples of correct code for the ""multi-line"" option:
+
+Open in Playground if ( foo ) foo ++ ; else doSomething ( ) ; if ( foo ) foo ++ ; else if ( bar ) baz ( ) else doSomething ( ) ; do something ( ) ; while ( foo ) ; while ( foo && bar ) baz ( ) ; if ( foo ) { foo ++ ; } if ( foo ) { foo ++ ; } while ( true ) { doSomething ( ) ; doSomethingElse ( ) ; } 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+
+
+multi-or-nest
+
+You can use another configuration that forces brace-less if , else if , else , for , while , or do if their body contains only one single-line statement. And forces braces in all other cases.
+
+Examples of incorrect code for the ""multi-or-nest"" option:
+
+Open in Playground if ( ! foo ) foo = { bar : baz , qux : foo } ; while ( true ) if ( foo ) doSomething ( ) ; else doSomethingElse ( ) ; if ( foo ) { foo ++ ; } while ( true ) { doSomething ( ) ; } for ( var i = 0 ; foo ; i ++ ) { doSomething ( ) ; } 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+
+
+Examples of correct code for the ""multi-or-nest"" option:
+
+Open in Playground if ( ! foo ) { foo = { bar : baz , qux : foo } ; } while ( true ) { if ( foo ) doSomething ( ) ; else doSomethingElse ( ) ; } if ( foo ) foo ++ ; while ( true ) doSomething ( ) ; for ( var i = 0 ; foo ; i ++ ) doSomething ( ) ; 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+
+
+For single-line statements preceded by a comment, braces are allowed but not required.
+
+Examples of additional correct code for the ""multi-or-nest"" option:
+
+Open in Playground if ( foo ) bar ( ) ; if ( foo ) { bar ( ) ; } 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+
+
+consistent
+
+When using any of the multi* options, you can add an option to enforce all bodies of a if , else if and else chain to be with or without braces.
+
+Examples of incorrect code for the ""multi"", ""consistent"" options:
+
+Open in Playground if ( foo ) { bar ( ) ; baz ( ) ; } else buz ( ) ; if ( foo ) bar ( ) ; else if ( faa ) bor ( ) ; else { other ( ) ; things ( ) ; } if ( true ) foo ( ) ; else { baz ( ) ; } if ( foo ) { foo ++ ; } 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+
+
+Examples of correct code for the ""multi"", ""consistent"" options:
+
+Open in Playground if ( foo ) { bar ( ) ; baz ( ) ; } else { buz ( ) ; } if ( foo ) { bar ( ) ; } else if ( faa ) { bor ( ) ; } else { other ( ) ; things ( ) ; } if ( true ) foo ( ) ; else baz ( ) ; if ( foo ) foo ++ ; 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+
+
+
+When Not To Use It
+
+If you have no strict conventions about when to use block statements and when not to, you can safely disable this rule.
+
+Version
+
+This rule was introduced in ESLint v0.0.2.
+
+Resources",
+curly braces | Übersetzung Deutsch-Englisch,https://m.dict.cc/englisch-deutsch/curly+braces.html,,"Anwendungsbeispiele Englisch
+
+It can contain chunks of ActionScript code, either when creating the body of an event handler function, or with data binding where the curly braces ({) syntax is used.
+
+Note that the curly braces cannot be omitted, even if empty.
+
+Like Python, Spin uses indentation whitespace, rather than curly braces or keywords, to delimit blocks.
+
+Commonly, square brackets are used here instead of curly braces to indicate the different notion of program correctness.
+
+This format should not be confused with ""Windows Registry format"", which refers to the format ""within"" the curly braces .
+
+specifier and an optional name (or ""tag"") for the enum, followed by a list of one or more constants contained within curly braces and separated by commas, and an optional list of variable names.
+
+The ""graph"" keyword is used to begin a new graph, and nodes are described within curly braces .
+
+Data types with core syntactic support are said to be ""sugared types"". Common examples include quote-delimited strings, curly braces for object and record types, and square brackets for arrays.
+
+By prefixing a sequence of statements enclosed in curly braces with the keyword [...] , the user can indicate that the sequence is to be executed as one indivisible unit, non-interleaved with any other processes.
+
+Here, the compiler will allow only the classes listed between the curly braces to access the features within the feature group (e.g. [...]).
+
+Tcl represents all source code as strings, with curly braces acting as quotation marks, so that the argument to [...] can have the same formatting as any other source code.
+
+, as in PL/I and Pascal, whitespace indentation as in Python, or the curly braces [...] of C and many later languages.",
+curly brackets - Русский перевод – Словарь Linguee,https://www.linguee.ru/%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9/%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4/curly+brackets.html,,"To fix the error here, we should use curly brackets too. viva64.com viva64.com To fix the error here, we should Для исправления [...] ошибки так же следует использовать фигурные скобки. viva64.com viva64.com ошибки так же следует исполь
+
+The error can be fixed by using curly brackets in the macro. viva64.com viva64.com The error can be fixed by uhe macro. Можно исправить ошибку, используя в макросе фигурные скобки. viva64.com viva64.com Можно исправить ошибку, испо
+
+If the code contains a [...] mistake, it can be fixed through adding curly brackets. viva64.com viva64.com mistake, it can be fixed through ad Если код ошибочен, то [...] ситуацию можно исправить, используя фигурные скобки. viva64.com viva64.com ситуацию можно исправить, ис
+
+It's highly probable that opening and closing curly brackets are missing. viva64.com viva64.com It's highly probable that opening and clomissing. Высока вероятность, что пропущены открывающиеся и закрывающиеся фигурные скобки. viva64.com viva64.com Высока вероятность, что пропущены открыва
+
+Exclusive range queries are denoted by curly brackets. patentscope.wipo.int patentscope.wipo.int Exclusive range queries are denote Запросы по [...] интервалу с исключением верхнего и нижнего значений обозначаются фигурными скобками. patentscope.wipo.int patentscope.wipo.int интервалу с исключением верхнего и нскобками.
+
+The basis for substantive paragraphs in this Summary for Policymakers can [...] be found in the chapter sections specified in curly brackets. climatechange.ru climatechange.ru be found in the chapter sections specifie Основу главных параграфов данного [...] резюме можно найти в разделах глав, указанных в фигурных скобках. climatechange.ru climatechange.ru резюме можно найти в разделаскобках.
+
+In the given syntax for each [...] command, a parameter surrounded by curly brackets {} denotes an optional parameter. us.battle.net us.battle.net command, a parameter surroundeenotes an optional parameter. В синтаксических выражениях для каждой [...] конкретной команды параметр, заключенный в фигурные скобки {}, является [...] необязательным. eu.battle.net eu.battle.net конкретной команды пскобки {}, является
+
+Curly brackets in C are used to group statements together as [...] in a function, or in the body of a loop. datadoctor.biz datadoctor.biz are used to group statements together as Курчавые кронштейны в ч использованы для того чтобы собрать [...] заявления совместно как в функцию, или в тело петли. datadoctor.biz datadoctor.biz зованы для того чтобы собрать
+
+If we wish to have more than one statement following the if or the [...] else, they should be grouped together between curly brackets. datadoctor.biz datadoctor.biz else, they should be grouped together bet Если мы хотим иметь более чем одного заявления, если после или [...] другое, они должны быть объединены между фигурными скобками. datadoctor.biz datadoctor.biz другое, они должны быть объедине
+
+Custom option values specified between curly brackets must be unique. webasyst.net webasyst.net Custom option values specified betbe unique. Значения дополнительной [...] характеристики в ячейке CSV-файла между фигурными скобками должны быть неповторяющимися. webasyst.ru webasyst.ru характеристики в ячейке CSVи должны быть неповторяющимися.
+
+C program main() declares the start of [...] the function, while the two curly brackets show the start and finish of [...] the function. datadoctor.biz datadoctor.biz the function, while thethe start and finish of Main() написаннаяой на ""с"" [...] программы объявляет старт функции, пока 2 курчавых кронштейна показывают старт [...] и отделку функции. datadoctor.biz datadoctor.biz программы объявляет старта показывают старт
+
+Always use these tags when [...] adding code with the curly brackets in the ""Advanced mode [...] (HTML)"" window under tabs General layout, [...] Storefront, and Product, as well as under the Head tab. webasyst.net webasyst.net adding code withhe ""Advanced mode Так же следует поступать и при добавлении кода в режиме [...] «Редактировать HTML-код» на вкладках Основная разметка, Витрина [...] и Продукт, а также на вкладке Head. webasyst.ru webasyst.ru Так жтупать и при добавлении кода в режиме
+
+What can be compared to purness of rivers, [...] alpian pastures, where you can see a group of curly ships. wfd.am wfd.am alpian pastures, where you can see a grous. Что может сравниться с чистотой рек, с сочностью [...] альпийских лугов, где летом пасутся стада кудрявых барашек. wfd.am wfd.am альпийских лугов, грявых барашек.
+
+Create your own curly look with Braun’s Satin Hair [...] 5 Airstyler – here’s how: use the big round brush for loose, large curls [...] or the small one for tighter curls. braun.com braun.com Create yourwith Braun’s Satin Hair Создайте свою собственную укладку со стайлером для укладки [...] волос Satin Hair 5 от Braun так: используйте большую круглую [...] щётку для свободных крупных локонов или маленькую – для тугих локонов. braun.com braun.com Создайте свою собствлером для укладки
+
+Remembering that Alexander Nevskiy's ancestors married not only Russian princesses but also Byzantine ones and daughters of Polovezk khans, it is admissible to assume that his appearance could differ from [...] that ideal sample of ""slavic [...] beauty” (a high fair-haired, curly athlete with regular features) [...] which was created by painting [...] of XIX-XX centuries and domestic cinema. tourismpereslavl.ru tourismpereslavl.ru beauty” (a high fair-haiete with regular features) Памятуя о том, что предки Александра Невского женились не только на русских княжнах, но и на византийских принцессах, и на дочерях половецких ханов, допустимо предположить, что внешность его могла [...] отличаться от того идеального [...] образца «славянской красоты» (высокий светловолосый, кудрявый богатырь [...] с правильными чертами лица), [...] который был создан живописью XIX-XX вв. и отечественным кинематографом. tourismpereslavl.ru tourismpereslavl.ru образца «славянской косый, кудрявый богатырь
+
+Such instructions represent the body of the function which has similar parameters to those of the specification function, and returns a special [...] construction—a branch identifier and the string literal [...] with the branch short description, which are included in curly braces unitesk.com unitesk.com with the branch short description, which are includees Эти инструкции представляют собой тело функции, имеющей те же параметры, что [...] и спецификационная функция, [...] и возвращающей специальную конструкцию — заключенные в фигурные скобки [...] идентификатор ветви и [...] строковый литерал с ее кратким описанием. unitesk.ru unitesk.ru и возвращающей спецнные в фигурные скобки
+
+uare brackets to the Commission should be discontinued: if the Group failed to reach consensus, the initial draft decision in square brackets should be transmitted to the Commission and the Group’s report should reflect its differing opinions. unesdoc.unesco.org unesdoc.unesco.org The practice of submitting parts of draft decisions in sqhe Commission should be discontinued: if the Group failed to reach consensus, the initial draft decision in sqld be transmitted to the Commission and the Group’s report should reflect its differing opinions. ешений в квадратных скобках следует прекратить, поскольку, если в Группе нет консенсуса, то на рассмотрение Комиссии должен выноситься первоначальный проект решения в квадратных скобках, а в докладе Группы должны быть отражены соответствующие различные мнения. unesdoc.unesco.org unesdoc.unesco.org Практику представления Комиссии частей проектов рледует прекратить, поскольку, если в Группе нет консенсуса, то на рассмотрение Комиссии должен выноситься первоначальныных скобках, а в докладе Группы должны быть отражены соответствующие различные мнения.
+
+However, the [...] text was placed between square brackets, as the representative of the [...] Russian Federation had pointed out that [...] not all of the provisions of 7.5.7.1 were applicable to the loading, stowage and unloading of containers onto and from vehicles. daccess-ods.un.org daccess-ods.un.org text was placed between sqthe representative of the ключен в квадратные скобки, поскольку представитель [...] Российской Федерации высказал замечание, что [...] не все положения пункта 7.5.7.1 могут применяться к погрузке, укладке и разгрузке контейнеров, перевозимых на транспортном средстве. daccess-ods.un.org daccess-ods.un.org Однако этот текст был заоскольку представитель
+
+Given that the Committee had not [...] reached consensus on the current proposal for the second sentence, he [...] suggested that it should be placed in square brackets. daccess-ods.un.org daccess-ods.un.org suggested that it should be placed in sq Поскольку Комитет не пришел к [...] консенсусу по предложенному на данный момент варианту второго предложения, он [...] предлагает поместить его в квадратные скобки. daccess-ods.un.org daccess-ods.un.org предлагает помесе скобки.
+
+A beautifully carved main door inlaid with wood is a sign of [...] welcome in many parts of India, [...] where carved wooden lintels, brackets and balconies are found in [...] many traditional homes. fao.org fao.org where carved wooden lintbalconies are found in Искусно выполненная входная дверь, отделанная резьбой по дереву, является признаком гостеприимства [...] во многих частях Индии, где [...] резные деревянные притолоки, кронштейны и балконы сплошь и рядом украшают [...] традиционные дома. fao.org fao.org резные деревянные присплошь и рядом украшают
+
+s in brackets show the percentage [...] of persons below the poverty line based on the EU SILC data. daccess-ods.un.org daccess-ods.un.org The figurethe percentage ифры в скобках показывают процентную [...] долю лиц, живущих за чертой бедности, на основе данных ОДУЖ ЕС. daccess-ods.un.org daccess-ods.un.org показывают процентную
+
+There are so many different shaped wigs [...] available, and different styles from a [...] short bob wig to a long curly wig and just to make [...] the choice of wig even harder, there [...] are so many colours for you to chose from, from a light blonde wig, to a jet back wig - we know that making sure that your wig is right for you can be a difficult task! wonderlandwigs.com wonderlandwigs.com short bob wig to aand just to make Есть так много различных [...] фасонных парики, и различные стили от [...] короткого Боба парик длинными вьющимися парик и просто [...] сделать выбор парик даже сложнее, [...] есть так много цветов для вас на выбор, от света блондинка парик, чтобы струи обратно парик - мы знаем, что убедившись, что выr парик подходит именно для вас может быть трудной задачей! wonderlandwigs.com wonderlandwigs.com короткого Боба пмися парик и просто
+
+In 2006 a pig rare breeds centre (Pig Paradise Farm) in Wiltshire imported [...] more than a dozen unrelated individuals [...] of an old Hungarian curly-coated lard breed, the [...] splendidly woolly though rather primitive Mangalitza. anglophile.ru anglophile.ru of an old Hungaed lard breed, the В 2006 г. Центр редких пород свиней( ферма Пиг Парадайз) в Вилтшире закупила более дюжины не [...] родственных друг другу особей старой венгерской сальной породы – [...] мангалицы, примитивной зато с густой кудрявой шерстью. anglophile.ru anglophile.ru мангалицы, примикудрявой шерстью.
+
+Their huge black [...] tender eyes under long curly lashes sent out waves [...] of pure love, total patience, and incredible tolerance. etapasvi.com etapasvi.com tender eyes underes sent out waves Их огромные чёрные [...] выразительные глаза под длинными вьющимися ресницами излучали волны [...] чистой любви, абсолютного терпения [...] и невероятной терпимости. etapasvi.com etapasvi.com выразительные глаза под длиами излучали волны
+
+To get waves that are firm but not too curly simple twist the product at [...] 180° and pull the Braun Satin Hair 5 Multistyler fast until the hairend. braun.com braun.com To get waves that are firm but notle twist the product at Чтобы добиться локонов, которые будут [...] достаточно упругими, но не слишком кудрявыми, просто поверните прибор на [...] 180° быстро потяните мультистайлер [...] Satin Hair 5 от Braun до самых кончиков волос. braun.com braun.com достаточно упругими, но неоверните прибор на
+
+The great William Shakespeare said: “Good legs sooner or later begin to stumble, the [...] proud back will be bent, the [...] black beard will turn grey, the curly head will grow bald, the beautiful [...] face will become covered [...] by wrinkles; the deep look will grow dull; but kind heart is the sun and the moon and even more like the sun, than the moon; for its shining and bright light. unesdoc.unesco.org unesdoc.unesco.org black beard will turn grey,will grow bald, the beautiful Великий У. Шекспир писал: «Хорошие ноги рано или поздно [...] станут спотыкаться; гордая [...] спина согнется; черная борода поседеет; кудрявая голова облысеет; [...] прекрасное лицо покроется морщинами; [...] глубокий взор потускнеет; но доброе сердце подобно солнцу и луне; и даже скорее солнцу, чем луне; ибо оно сияет ярким светом, никогда не изменяется и всегда следует верным путем». unesdoc.unesco.org unesdoc.unesco.org спина согнется; чернаголова облысеет;
+
+Likewise in paragraph 33, recourse had been made to the definition of the term “public order” in the Siracusa Principles on the Limitation and Derogation [...] Provisions in the International Covenant on Civil and Political [...] Rights, as indicated in footnote 78 in square brackets. daccess-ods.un.org daccess-ods.un.org Rights, as indicated in footnote 78 in sq Аналогичным образом, в пункте 33 было использовано определение термина ""общественный порядок"", содержащееся в Сиракузских принципах толкования ограничений и отступлений [...] от положений Международного пакта о гражданских и [...] политических правах, как это указано в сноске 78 в квадратных [...] скобках. daccess-ods.un.org daccess-ods.un.org политических прсноске 78 в квадратных
+
+wage brackets, and the degree of impact on employment as judged from the number of workers whose wages are lower than the envisaged minimum wage. daccess-ods.un.org daccess-ods.un.org They then determine the minimum wage by paying attention to such factors as the cost of living in the region, the starting salaries of recent graduates, the minimum wages agreed within the companies, the distribution of workers across differentthe degree of impact on employment as judged from the number of workers whose wages are lower than the envisaged minimum wage. daccess-ods.un.org daccess-ods.un.org Они затем определяют минимальную ставку, учитывая такие факторы, как прожиточный минимум в регионе, начальные ставки недавних выпускников, минимальные ставки, согласованные с компаниями, распределение работников по различным категориям ставок и степень воздействия на занятость, согласно оценке количества работников, чьи ставки ниже предполагаемой минимальной ставки.",
+https://frankmedia.ru/?s=광주차가운술구하기%20｛텔레그램%20:%20𝗲...,https://frankmedia.ru/?s=%EA%B4%91%EC%A3%BC%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EA%B5%AC%ED%95%98%EA%B8%B0%20%EF%BD%9B%ED%85%94%EB%A0%88%EA%B7%B8%EB%9E%A8%20:%20%F0%9D%97%B2%F0%9D%97%B1%F0%9D%97%B4%F0%9D%97%B2%F0%9D%9F%B1%F0%9D%9F%B4%F0%9D%9F%B3%F0%9D%9F%B3%20%EC%9A%B8%EC%82%B0%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EC%82%AC%EB%8A%94%EB%B2%95%20%EA%B4%91%EC%A3%BC%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EA%B5%AC%EB%A7%A4%20%EB%8C%80%EA%B5%AC%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EA%B5%AC%ED%95%98%EB%8A%94%20%EB%B0%A9%EB%B2%95%20%EB%8C%80%EA%B5%AC%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EC%82%AC%EC%9A%94,,По вашему запросу ничего не найдено.,
+https://www.oxfordlearnersdictionaries.com/spellch...,https://www.oxfordlearnersdictionaries.com/spellcheck/english/?q=%EC%B0%BD%EC%9B%90%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%ED%8C%90%EB%A7%A4%EC%B2%98%20%EF%BD%9B%E3%85%8C%E3%84%B9%E3%84%B1%E3%84%B9@%20%F0%9D%97%B2%F0%9D%97%B1%F0%9D%97%B4%F0%9D%97%B2%F0%9D%9F%B1%F0%9D%9F%B4%F0%9D%9F%B3%F0%9D%9F%B3%20%EA%B4%91%EC%A3%BC%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EA%B5%AC%EC%9E%85%20%EC%88%98%EC%9B%90%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%ED%8C%90%EB%A7%A4%20%EC%B0%BD%EC%9B%90%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EC%82%AC%EB%8A%94%EA%B3%B3%20%EB%8C%80%EC%A0%84%EC%B0%A8%EA%B0%80%EC%9A%B4%EC%88%A0%EA%B5%AC%ED%95%98%EB%8A%94%EB%B2%95,,"No exact match found for “창원차가운술판매처 ｛ㅌㄹㄱㄹ@ 광주차가운술구입 수원차가운술판매 창원차가운술사는곳 대전차가운술구하는법” in English
+
+Nearest results from our other dictionaries and grammar usage guide:",
+math: curly brackets $\{...\}$ not working #16993,https://github.com/orgs/community/discussions/16993,,"To see all available qualifiers, see our documentation .
+
+Saved searches Use saved searches to filter your results more quickly
+
+We read every piece of feedback, and take your input very seriously.
+
+You signed in with another tab or window. Reload to refresh your session.
+
+You signed out in another tab or window. Reload to refresh your session.
+
+You switched accounts on another tab or window. Reload to refresh your session.
+
+Dismiss alert",
+"rust - What are the curly braces in ""&{ s }.borrow_self()"" for?",https://stackoverflow.com/questions/70695316/what-are-the-curly-braces-in-s-borrow-self-for,13 янв. 2022 г.,"I'm going through the statements and expressions chapter in the Rust book. What are the curly braces in &{ s }.borrow_self() for? Am I getting the pointer, and if so would it not make more sense to use &s.borrow_self() ?
+
+Just a little confused as to what purpose the curly braces have and the logic behind using them.",
+{} (Curly braces) \ Language (API),https://py.processing.org/reference/curlybraces,,"Description
+
+Curly braces are used to define ""dictionary literals,"" giving you the ability to declare a dictionary and its contents inside your program. A dictionary literal consists of a series of key/value pairs, written with a colon (:) between them, and with each of the key/value pairs separated from one other with commas.
+
+
+
+Curly braces are also used to define ""sets,"" or a series of unique keys without values, separated by commas. This is not to be confused with using set() on a pixel.",
+"Примеры употребления ""curly brackets"" в английском",https://www.translate.ru/%D0%BA%D0%BE%D0%BD%D1%82%D0%B5%D0%BA%D1%81%D1%82%D1%8B/%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9/curly%20brackets,,"Примеры употребления слов в разных контекстах предоставляются исключительно в лингвистических целях, т. е. для изучения употребления слов в одном языке и вариантов их перевода на другой. Все образцы собраны автоматически из открытых источников с помощью технологии поиска на основе двуязычных данных. Если вы обнаружили орфографическую, пунктуационную или иную ошибку в оригинале или переводе, используйте опцию ""Сообщить о проблеме"" или напишите нам
+
+Примечание: для редактирования информации о видео, вроде названия и описания, можно использовать любые символы, кроме угловых скобок
+
+Напротив, повышение дивидендов может быть в интересах кого-либо из крупных держателей, испытывающих острую потребность в дополнительных средствах, что случается и с людьми, выплачивающими налоги по высоким ставкам.
+
+У одного из них были кудрявые волосы и невыносимо высокий голос.
+
+Миллионы акционеров, относимых к нижним ступеням налоговой шкалы, устраивают свои дела таким образом, что каждый год кое-что откладывают (пусть и немного) для новых инвестиций.
+
+Если указано значение ""false"" и файл отчета с таким именем уже существует, то к имени файла отчета будет добавлен порядковый номер в квадратных скобках
+
+Боже, иногда мне кажется, что я замужем за Ларри, Кёрли и Мо.
+
+26.4 Оглавления (включая те, которые указаны в скобках в начале параграфов) указаны исключительно для удобства и не влияют на толкование Договора.
+
+В этом разделе вы можете посмотреть, как употребляются слова и выражения в разных контекстах на реальных примерах. Все примеры собраны из уже переведенных текстов: официальных документов, сайтов, журналов и диалогов из фильмов. Раздел Контексты поможет в изучении английского, немецкого, испанского, русского и других языков. Здесь вы сможете найти примеры с фразовыми глаголами, устойчивыми выражениями и многозначными словами в разнообразных по стилю и тематикам текстах Примеры можно отсортировать по переводам и тематикам, а также сделать уточняющий поиск по найденным примерам.
+
+Изучайте иностранные языки, смотрите перевод миллионов слов и выражений, проверяйте их употребление на реальных примерах благодаря нашей технологии поиска на основе двуязычных данных!",
+Результаты поиска «双鸭山宝山找小姐上门服务｛选妹进入 ...,http://acvariys.ru/?s=%E5%8F%8C%E9%B8%AD%E5%B1%B1%E5%AE%9D%E5%B1%B1%E6%89%BE%E5%B0%8F%E5%A7%90%E4%B8%8A%E9%97%A8%E6%9C%8D%E5%8A%A1%EF%BD%9B%E9%80%89%E5%A6%B9%E8%BF%9B%E5%85%A5651f.COM%E4%BA%86%E8%A7%A3%EF%BD%9D%E6%89%BE%E5%B0%8F%E5%A7%90%E4%B8%8A%E9%97%A8%E6%9C%8D%E5%8A%A1%E8%81%94%E7%B3%BB%E6%96%B9%E5%BC%8F.tajkumotb,,"Извините, по вашему запросу ничего не найдено. Попробуйте другие ключевые слова.",
+Торговая площадка сообщества Steam :: Лоты ｛微信客服 ...,https://steamcommunity.com/market/listings/730/%EF%BD%9B%E5%BE%AE%E4%BF%A1%E5%AE%A2%E6%9C%8D78444643%EF%BD%9D%E6%9F%A5%E5%88%AB%E4%BA%BA%E5%BE%AE%E4%BF%A1%E8%AE%B0%E5%BD%95%E6%9F%A5%E8%AF%A2%E8%BD%AF%E4%BB%B6%E5%8F%AB%E4%BB%80%E4%B9%88%E8%BD%AF%E4%BB%B6%E5%90%97-%E7%A0%B4%E8%A7%A3%E6%9F%A5%E8%AF%A2%E6%89%8B%E6%9C%BA%E6%95%B0%E6%8D%AE.ong?l=russian,,Для этого вам нужно войти в систему или создать аккаунт.,

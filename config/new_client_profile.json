@@ -1,0 +1,39 @@
+{
+    "client_name": "LC",
+    "prompt": "You are analyzing text in an Excel spreadsheet consisting of news articles. Your task is to discover specific corporations interested in introducing innovations in the field of logistics. You need to find news that confirms these corporations' interest in the product: a base of startups that they can use to find and implement innovations and improve operational processes. Based on this news, the sales manager will be able to create a proposal for the product. For a correct analysis, consider the following criteria: Suitable signals: - The name of the corporation is mentioned. - It is clear from the context that the corporation is involved in logistics. - The context indicates the corporation's interest in innovating, using startups to improve its operational processes. Unsuitable: - Analytical reports, market reviews, etc. - News without mention of a specific corporation. - News about startups attracting investments from venture funds. Your answers will be recorded in a table and used as a filter. If you have found a suitable signal, determine the name of the client corporation and write only that. If there is no suitable signal, enter \"3\". The answer must be STRICTLY the company name or 3, without text, quotes or other characters.",
+    "search_queries": {
+      "queries": [
+        "logistics tech startup collaboration",
+        "supply chain innovation partnership",
+        "shipping technology investment",
+        "transportation startup accelerator",
+        "3PL tech innovation",
+        "trucking technology venture capital",
+        "parcel delivery startup incubator",
+        "cargo tech corporate venture",
+        "fleet management technology pilot project",
+        "emerging logistics solutions",
+        "supply chain efficiency startup program",
+        "freight technology R&D cooperation",
+        "innovative shipping solutions investment",
+        "smart transportation technologies",
+        "3PL startup strategic investment",
+        "next-gen trucking solutions",
+        "cutting-edge parcel delivery startups",
+        "cargo management technology",
+        "fleet optimization startups",
+        "logistics industry tech disruptors",
+        "supply chain automation startups",
+        "innovative freight processing technologies",
+        "transportation safety tech ventures",
+        "3PL sustainability innovations",
+        "trucking logistics digital transformations",
+        "parcel tracking tech startups",
+        "cargo visibility solutions",
+        "fleet management software innovations",
+        "smart logistics platforms",
+        "integrated supply chain systems"
+      ],
+      "exclude": "-vacancies -\"job postings\" -careers -hiring -workshops -seminars -training -\"trade shows\" -exhibitions -conferences -\"market analysis\" -\"financial reports\" -\"stock markets\" -legislation -regulations -compliance -courts -litigations"
+    }
+  }
