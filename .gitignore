@@ -8,6 +8,7 @@ results/*
 # Ignore local IDE settings
 .idea/
 .vscode/
+generate_markdown_map.py
 
 # Ignore files with sensitive information
 api_keys.py

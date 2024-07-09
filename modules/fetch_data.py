@@ -12,7 +12,7 @@ user = api_keys["xmlstock_user"]
 key = api_keys["xmlstock_key"]
 url = "https://xmlstock.com/google/xml/"
 
-def fetch_xmlstock_search_results(query, days=30, num_results=100, num_pages=1, verbose=False):
+def fetch_xmlstock_search_results(query, days=30, num_results=100, num_pages=1, sites=None, verbose=False):
     """
     Fetch search results from XMLStock API.
 
@@ -21,58 +21,67 @@ def fetch_xmlstock_search_results(query, days=30, num_results=100, num_pages=1, 
         days (int): Number of days to look back from the current date.
         num_results (int): Number of results to fetch per page.
         num_pages (int): Number of pages to fetch.
+        sites (list): List of sites to search in.
         verbose (bool): Flag to enable/disable verbose output.
 
     Returns:
         list: List of search results with title, link, and publication date.
     """
-    params = {
-        "user": user,
-        "key": key,
-        "query": query,
-        "num": num_results,
-        "date": (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d'),
-        "sort": "date"
-    }
-    if verbose:
-        print("Fetching results with params:", params)
+    if sites is None or not sites:
+        sites = [""]
     
     results = []
-    for page in range(1, num_pages + 1):
-        params['page'] = page
-        try:
-            response = requests.get(url, params=params, timeout=10)
-            if verbose:
-                print("Response status code:", response.status_code)
-            if response.status_code != 200:
-                if verbose:
-                    print(f"Error fetching results: {response.status_code}")
-                    print(response.text)
-                continue
-
+    for site in sites:
+        site_query = f"{query} site:{site}" if site else query
+        if verbose:
+            print(f"Searching with query: {site_query}")
+        
+        params = {
+            "user": user,
+            "key": key,
+            "query": site_query,
+            "num": num_results,
+            "date": (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d'),
+            "sort": "date"
+        }
+        if verbose:
+            print("Fetching results with params:", params)
+        
+        for page in range(1, num_pages + 1):
+            params['page'] = page
             try:
+                response = requests.get(url, params=params, timeout=10)
                 if verbose:
-                    print("Response content:", response.content)
-                root = ET.fromstring(response.content)
-                for group in root.findall('.//group'):
-                    for doc in group.findall('doc'):
-                        pub_date = doc.find('pubDate').text if doc.find('pubDate') is not None else "N/A"
-                        pub_date_dt = parse_date(pub_date) if pub_date != "N/A" else None
-                        if pub_date_dt is None or pub_date_dt >= (datetime.now() - timedelta(days=days)):
-                            result = {
-                                'title': doc.find('title').text if doc.find('title') is not None else "N/A",
-                                'link': doc.find('url').text if doc.find('url') is not None else "N/A",
-                                'pubDate': pub_date
-                            }
-                            results.append(result)
+                    print("Response status code:", response.status_code)
+                if response.status_code != 200:
+                    if verbose:
+                        print(f"Error fetching results: {response.status_code}")
+                        print(response.text)
+                    continue
+
+                try:
+                    if verbose:
+                        print("Response content:", response.content)
+                    root = ET.fromstring(response.content)
+                    for group in root.findall('.//group'):
+                        for doc in group.findall('doc'):
+                            pub_date = doc.find('pubDate').text if doc.find('pubDate') is not None else "N/A"
+                            pub_date_dt = parse_date(pub_date) if pub_date != "N/A" else None
+                            if pub_date_dt is None or pub_date_dt >= (datetime.now() - timedelta(days=days)):
+                                result = {
+                                    'title': doc.find('title').text if doc.find('title') is not None else "N/A",
+                                    'link': doc.find('url').text if doc.find('url') is not None else "N/A",
+                                    'pubDate': pub_date
+                                }
+                                results.append(result)
+                    if verbose:
+                        print(f"Parsed results for {site}: {len(results)}")
+                except ET.ParseError as e:
+                    if verbose:
+                        print(f"Error parsing XML response: {e}")
+            except requests.exceptions.RequestException as e:
                 if verbose:
-                    print("Parsed results:", results)
-            except ET.ParseError as e:
-                if verbose:
-                    print(f"Error parsing XML response: {e}")
-        except requests.exceptions.RequestException as e:
-            if verbose:
-                print(f"Error fetching results: {e}")
+                    print(f"Error fetching results: {e}")
 
     return results
 
@@ -103,38 +112,36 @@ def fetch_and_parse(url, verbose=False):
             'article_url': url
         }
     except requests.exceptions.RequestException as e:
-        if verbose:
-            print(f"Error fetching article: {url}\n{e}")
+        print(f"Error fetching article: {url}\n{e}")
         return {
             'title': "N/A",
             'authors': [],
-            'text': "",
+            'text': f"Error fetching: {str(e)}",
             'article_url': url
         }
     except Exception as e:
-        if verbose:
-            print(f"Error parsing article: {url}\n{e}")
+        print(f"Error parsing article: {url}\n{e}")
         return {
             'title': "N/A",
             'authors': [],
-            'text': "",
+            'text': f"Error parsing: {str(e)}",
             'article_url': url
         }
 
-def save_results_to_csv(results, output_filename, verbose=False):
-    """
-    Save search results to a CSV file.
+# def save_results_to_csv(results, output_filename, verbose=False):
+#     """
+#     Save search results to a CSV file.
 
-    Args:
-        results (list): List of search results to save.
-        output_filename (str): Path to the output CSV file.
-        verbose (bool): Flag to enable/disable verbose output.
-    """
-    if results:
-        df = pd.DataFrame(results)
-        df.to_csv(output_filename, index=False)
-        if verbose:
-            print(f"Extracted articles saved to '{output_filename}'")
-    else:
-        if verbose:
-            print("No articles were extracted.")
+#     Args:
+#         results (list): List of search results to save.
+#         output_filename (str): Path to the output CSV file.
+#         verbose (bool): Flag to enable/disable verbose output.
+#     """
+#     if results:
+#         df = pd.DataFrame(results)
+#         df.to_csv(output_filename, index=False)
+#         if verbose:
+#             print(f"Extracted articles saved to '{output_filename}'")
+#     else:
+#         if verbose:
+#             print("No articles were extracted.")

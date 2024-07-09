@@ -2,47 +2,69 @@ import os
 import json
 import argparse
 from datetime import datetime
-from modules.fetch_data import fetch_xmlstock_search_results, fetch_and_parse, save_results_to_csv
+from modules.fetch_data import fetch_xmlstock_search_results, fetch_and_parse #, save_results_to_csv
 from modules.clean_data import clean_data
 from modules.analyse_data import analyse_data
 from modules.client_management import get_client_and_date
+from modules.utils import save_results_to_csv
 import time
 import pandas as pd
 
-def fetch_data(client_name, days, num_results, num_pages, queries, exclude, verbose):
+def fetch_data(client_name, days, num_results, num_pages, queries, exclude, sites, verbose):
     print("Starting data fetching and processing...")
     # Fetch and process data
     all_articles = []
     for query in queries:
-        search_results = fetch_xmlstock_search_results(query, days, num_results, num_pages)
+        print(f"Fetching data for query: {query}")
+        search_results = fetch_xmlstock_search_results(query, days, num_results, num_pages, sites, verbose)
+        print(f"Received {len(search_results)} results for query: {query}")
         for result in search_results:
+            print(f"Processing article: {result['link']}")
             article_data = fetch_and_parse(result['link'])
-            if article_data['title'] != "N/A":
+            print(f"Article title: {article_data['title']}")
+            print(f"Article text length: {len(article_data['text'])}")
+            if article_data['title'] != "": #"N/A":
                 result.update({
                     'description': article_data['text'],
                     'query': query
                 })
                 all_articles.append(result)
+            else:
+                print(f"Article skipped: {result['link']}")
         time.sleep(2)  # Add delay between requests
+
+    print(f"Total articles fetched: {len(all_articles)}")
 
     # Save results to CSV
     search_date_str = datetime.now().strftime('%Y-%m-%d')
     current_search_dir = os.path.join('results', client_name, search_date_str)
     os.makedirs(current_search_dir, exist_ok=True)
     results_file = os.path.join(current_search_dir, 'search_results.csv')
-    save_results_to_csv(all_articles, results_file)
+    
+    if len(all_articles) > 0:
+        save_results_to_csv(all_articles, results_file)
+        print(f"Results saved to {results_file}")
+    else:
+        print("No articles were fetched. The results file was not created.")
+
+    return len(all_articles) > 0
 
 def clean_data_only(client_name, verbose):
     search_date_str = datetime.now().strftime('%Y-%m-%d')
     current_search_dir = os.path.join('results', client_name, search_date_str)
     results_file = os.path.join(current_search_dir, 'search_results.csv')
 
+    if not os.path.exists(results_file):
+        print(f"Error: Results file not found: {results_file}")
+        print("Please make sure to run data fetching before cleaning.")
+        return
+
     # Check if the results file is empty before calling clean_data
     if os.path.getsize(results_file) > 0:
         # Clean data
         clean_data(results_file, os.path.join(current_search_dir, 'search_results_cleaned.csv'), verbose=verbose)
     else:
-        print("No articles were extracted. Skipping data cleaning.")
+        print(f"Warning: The results file {results_file} is empty. No data to clean.")
 
 def analyze_data_only(client_name, verbose):
     search_date_str = datetime.now().strftime('%Y-%m-%d')
@@ -88,20 +110,24 @@ def main():
     num_results = config['num_results']
     num_pages = config['num_pages']
     verbose = config.get('verbose', False)
+    sites = config.get('sites', [])
     search_date = config.get('search_date', datetime.now().strftime('%Y-%m-%d'))
 
-    if args.fetch:
-        fetch_data(client_name, days, num_results, num_pages, queries, exclude, verbose)
-    elif args.clean:
+    data_fetched = False
+    if args.fetch or not (args.clean or args.analyze):
+        data_fetched = fetch_data(client_name, days, num_results, num_pages, queries, exclude, sites, verbose)
+    
+    if (args.clean or not (args.fetch or args.analyze)) and (data_fetched or os.path.exists(os.path.join('results', client_name, search_date, 'search_results.csv'))):
         clean_data_only(client_name, verbose)
-    elif args.analyze:
+    elif not data_fetched:
+        print("Skipping cleaning step as no data was fetched.")
+    
+    if (args.analyze or not (args.fetch or args.clean)) and (data_fetched or os.path.exists(os.path.join('results', client_name, search_date, 'search_results_cleaned.csv'))):
         analyze_data_only(client_name, verbose)
-    else:
-        fetch_data(client_name, days, num_results, num_pages, queries, exclude, verbose)
-        clean_and_analyze_data(client_name, verbose)
+    elif not data_fetched:
+        print("Skipping analysis step as no data was fetched.")
 
     print("Program finished successfully.")
 
 if __name__ == "__main__":
     main()
-    

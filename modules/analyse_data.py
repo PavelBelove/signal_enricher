@@ -5,7 +5,10 @@ import pandas as pd
 from openpyxl import load_workbook
 from modules.utils import load_role_description, signal_handler, gpt_query
 
-# Функция для анализа данных
+import os
+import pandas as pd
+from modules.utils import gpt_query, load_role_description
+
 def analyse_data(input_filename, output_filename, roles_dir):
     # Путь к файлу с ролями
     role_file = os.path.join(roles_dir, 'prompt.txt')
@@ -14,7 +17,9 @@ def analyse_data(input_filename, output_filename, roles_dir):
     role_description = load_role_description(role_file)
 
     # Загрузка данных из CSV
+    print(f"Loading data from {input_filename}...")
     df = pd.read_csv(input_filename)
+    print(f"Loaded {len(df)} rows.")
 
     # Добавление колонки для результатов анализа
     df['analysis'] = ""
@@ -36,29 +41,28 @@ def analyse_data(input_filename, output_filename, roles_dir):
                     {"role": "system", "content": role_description},
                     {"role": "user", "content": full_article_text}
                 ]
+                print(f"Querying model for row {index + 1}...")
                 answer_article, tokens_used_article = gpt_query(article_messages)
                 tokens_used_total += tokens_used_article
 
                 # Вывод результатов анализа и использованных токенов
-                print(f"Строка {index + 1}:")
-                print(f" Ответ анализа содержания статьи: {answer_article}")
-                print(f" Использовано токенов для статьи: {tokens_used_article}")
+                print(f"Row {index + 1}:")
+                print(f" Analysis response: {answer_article[:100]}...")  # Print first 100 characters
+                print(f" Tokens used for article: {tokens_used_article}")
 
                 # Запись результата в DataFrame
                 df.at[index, 'analysis'] = answer_article
             else:
-                print(f"Строка {index + 1}: текст статьи слишком короткий для анализа. {full_article_text}")
+                print(f"Row {index + 1}: article text too short for analysis. Length: {len(full_article_text)}")
         except Exception as e:
-            print(f"Ошибка при обработке строки {index + 1}: {e}")
+            print(f"Error processing row {index + 1}: {e}")
+        
+        # Save results after each processed row
+        df.to_csv(output_filename, index=False)
+        print(f"Results saved to '{output_filename}'. Processed {index + 1} rows.")
 
-    # Сохранение результатов анализа в CSV
-    df.to_csv(output_filename, index=False)
-    print(f"Обработка завершена. Общее количество использованных токенов: {tokens_used_total}")
-    print(f"Результаты сохранены в '{output_filename}'.")
+    print(f"Total tokens used: {tokens_used_total}")
+    print(f"Analysis complete. Results saved to '{output_filename}'.")
 
-if __name__ == "__main__":
-    # Пример использования
-    input_filename = 'results/example_client/2024-06-13/search_results_cleaned.csv'
-    output_filename = 'results/example_client/2024-06-13/search_results_analysed.csv'
-    roles_dir = 'results/example_client/roles'
-    analyse_data(input_filename, output_filename, roles_dir)
+    print(f"Processing completed. Total tokens used: {tokens_used_total}")
+    print(f"Final results saved to '{output_filename}'.")
