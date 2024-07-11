@@ -5,6 +5,6 @@
   "use_gemeni": true,
   "gemeni_rate_limit": 12,
   "sites": [
-      "https://www.linkedin.com/posts/"
+      "linkedin.com/posts/"
   ]
 }

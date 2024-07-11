@@ -7,6 +7,7 @@ from modules.clean_data import clean_data
 from modules.analyse_data import analyse_data
 from modules.client_management import get_client_and_date
 from modules.utils import save_results_to_csv
+
 import time
 import pandas as pd
 
