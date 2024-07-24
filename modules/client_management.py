@@ -62,22 +62,34 @@ def select_client():
     return clients[client_index]
 
 def get_client_and_date():
-    print("1. Создать нового клиента")
-    print("2. Выбрать существующего клиента")
-    choice = int(input("Выберите действие (введите номер): "))
+    clients_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'results')
+    clients = [d for d in os.listdir(clients_dir) if os.path.isdir(os.path.join(clients_dir, d))]
 
-    if choice == 1:
-        with open('config/new_client_profile.json', 'r') as f:
-            config = json.load(f)
-        create_project_structure(config)
-        client_name = config['client_name']
+    print("Доступные клиенты:")
+    for i, client in enumerate(clients, 1):
+        print(f"{i}. {client}")
+    print("0. Создать нового клиента")
+    
+    while True:
+        choice = input("Выберите клиента (введите номер): ")
+        if choice == '0':
+            with open('config/new_client_profile.json', 'r') as f:
+                config = json.load(f)
+            create_project_structure(config)
+            client_name = config['client_name']
+            break
+        elif choice.isdigit() and 1 <= int(choice) <= len(clients):
+            client_name = clients[int(choice) - 1]
+            break
+        else:
+            print("Неверный выбор. Попробуйте еще раз.")
+
+    date_input = input("Введите дату поиска (в формате YYYY-MM-DD) или нажмите Enter для текущей даты: ")
+    if date_input.strip() == "":
         search_date = datetime.now()
-    elif choice == 2:
-        client_name = select_client()
-        search_date_str = input("Введите дату поиска (в формате YYYY-MM-DD): ")
-        search_date = datetime.strptime(search_date_str, '%Y-%m-%d')
     else:
-        print("Неверный выбор")
-        return None, None
+        search_date = datetime.strptime(date_input, '%Y-%m-%d')
+
+    return client_name, search_date
 
     return client_name, search_date

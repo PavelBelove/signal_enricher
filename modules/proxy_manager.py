@@ -65,3 +65,35 @@ class ProxyManager:
         return random.choice(self.proxies) if self.proxies else None
 
 proxy_manager = ProxyManager()
+import json
+import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def load_proxies(file_path='config/proxies.json'):
+    with open(file_path, 'r') as f:
+        return json.load(f)
+
+def test_proxy(proxy):
+    try:
+        response = requests.get('https://httpbin.org/ip', proxies={'http': proxy, 'https': proxy}, timeout=5)
+        if response.status_code == 200:
+            return proxy, response.elapsed.total_seconds()
+    except:
+        pass
+    return None, None
+
+def get_best_proxy(proxies):
+    working_proxies = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_proxy = {executor.submit(test_proxy, proxy): proxy for proxy in proxies}
+        for future in as_completed(future_to_proxy):
+            proxy, latency = future.result()
+            if proxy:
+                working_proxies.append((proxy, latency))
+    
+    if working_proxies:
+        return min(working_proxies, key=lambda x: x[1])[0]
+    return None
+
+def get_proxy_dict(proxy):
+    return {'http': proxy, 'https': proxy}

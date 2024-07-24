@@ -1,10 +1,3 @@
-# modules/analyse_data.py
-
-import os
-import pandas as pd
-from openpyxl import load_workbook
-from modules.utils import load_role_description, signal_handler, gpt_query
-
 import os
 import pandas as pd
 from modules.utils import gpt_query, load_role_description
@@ -42,7 +35,7 @@ def analyse_data(input_filename, output_filename, roles_dir):
                     {"role": "user", "content": full_article_text}
                 ]
                 print(f"Querying model for row {index + 1}...")
-                answer_article, tokens_used_article = gpt_query(article_messages)
+                answer_article, tokens_used_article = gpt_query(article_messages)  # Убран аргумент proxy
                 tokens_used_total += tokens_used_article
 
                 # Вывод результатов анализа и использованных токенов

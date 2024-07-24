@@ -1,10 +1,32 @@
 {
-  "days": 30,
-  "num_results": 50,
-  "num_pages": 1,
-  "use_gemeni": true,
-  "gemeni_rate_limit": 12,
-  "sites": [
-      "linkedin.com/posts/"
-  ]
-}
+    "days": 7,
+    "num_results": 100,
+    "num_pages": 1,
+    "use_gemeni": true,
+    "gemeni_rate_limit": 12,
+    "sites": [
+      "",
+      "facebook.com"
+    ],
+    "search_engines": [
+      {
+        "name": "xmlsearch",
+        "enabled": true
+      },
+      {
+        "name": "bing",
+        "enabled": true,
+        "api_keys": [
+          "458287ef7614485b8a5aeeb078cd0357",
+          "979e7ee3e09b495185670564218e5c70"
+        ],
+        "endpoint": "https://api.bing.microsoft.com/v7.0/search",
+        "rate_limit": 3,
+        "rate_limit_period": 1
+      }
+    ],
+    "link_finder": {
+      "max_words": 10,
+      "time_flags": ["future", "present", "past"]
+    }
+  }

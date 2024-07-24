@@ -4,6 +4,7 @@ __pycache__/
 env/
 results/*
 !results/example_task
+**/HTML/
 
 # Ignore local IDE settings
 .idea/
