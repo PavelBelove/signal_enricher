@@ -141,6 +141,7 @@ def process_csv_to_excel(web_csv, li_csv, output_excel):
                 description = clean_text(row.get('description', 'N/A'))
                 description = truncate_text(description, 10000)
                 author = clean_text(row.get('title', 'N/A'))  # В LinkedIn автор записан в поле 'title'
+                pubDate = row.get('pubDate', '')  # Добавляем дату публикации
                 title = "N/A"  # У LinkedIn-постов нет заголовков
 
                 data.append({
@@ -150,6 +151,7 @@ def process_csv_to_excel(web_csv, li_csv, output_excel):
                     'link': link,
                     'description': description,
                     'author': author,
+                    'pubDate': pubDate,  # Добавляем дату публикации
                     'title': title,
                     'source': 'LinkedIn',
                     'summary': summary
@@ -162,7 +164,7 @@ def process_csv_to_excel(web_csv, li_csv, output_excel):
         return
 
     print("Обновление отсутствующих ссылок")
-    data = update_missing_links(data)
+    # data = update_missing_links(data)
 
     print("Запись данных в Excel файл")
     for item in data:
@@ -173,8 +175,8 @@ def process_csv_to_excel(web_csv, li_csv, output_excel):
     print(f"Excel файл успешно создан: {output_excel}")
 
 if __name__ == "__main__":
-    web_csv = "results/ipnote/2024-07-19-web/search_results_analysed.csv"
-    li_csv = "results/ipnote/2024-07-19-li/search_results_analysed.csv"
+    web_csv = "results/farma/2024-07-33/search_results_analysed.csv"
+    li_csv = "results/designers/2024-08-14/search_results_analysed.csv"
     output_excel = "output.xlsx"
 
     process_csv_to_excel(web_csv, li_csv, output_excel)

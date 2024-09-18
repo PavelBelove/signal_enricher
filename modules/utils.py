@@ -1,25 +1,127 @@
 import os
 import sys
 import re
-import openai
-import google.generativeai as genai
-import pandas as pd 
-import time
-from functools import wraps
-from config.api_keys import api_keys
 import json
+import time
+import asyncio
+import aiohttp
+from itertools import cycle
+from functools import wraps
+import google.generativeai as genai
 
-# Load the configuration
-with open('config/search_config.json', 'r') as f:
-    config = json.load(f)
+# Загрузка конфигурации
+try:
+    with open('config/search_config.json', 'r') as f:
+        config = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    print("Ошибка при чтении файла конфигурации. Используем значения по умолчанию.")
+    config = {}
 
-use_gemeni = config.get("use_gemeni", True)
-gemeni_rate_limit = config.get("gemeni_rate_limit")
-gemeni_api_key = api_keys["gemeni_api_key"]
+# Загрузка API ключей
+try:
+    from config.api_keys import api_keys
+except ImportError:
+    print("Ошибка при импорте api_keys. Убедитесь, что файл существует и содержит необходимые ключи.")
+    api_keys = {}
 
-# Configure Gemini API
-if use_gemeni:
-    genai.configure(api_key=gemeni_api_key)
+use_gemini = config.get("use_gemini", True)
+gemini_rate_limit = config.get("gemini_rate_limit", 20)  # Запросов в минуту
+gemini_api_keys = api_keys.get("gemini_api_keys", [])
+
+if not gemini_api_keys:
+    print("Внимание: Список ключей API Gemini пуст. Убедитесь, что ключи правильно настроены в файле api_keys.py")
+
+gemini_key_cycle = cycle(gemini_api_keys)
+
+def clean_domain(domain):
+    """
+    Очищает доменное имя от префиксов.
+    
+    Args:
+        domain (str): Исходный домен.
+    
+    Returns:
+        str: Очищенный домен.
+    """
+    domain = domain.lower()
+    domain = re.sub(r'^https?://', '', domain)
+    domain = re.sub(r'^www\.', '', domain)
+    return domain.split('/')[0]
+
+async def rate_limited_request(session, url, payload, api_key):
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    async with session.post(url, json=payload, headers=headers) as response:
+        return await response.json()
+
+async def gpt_query_async(messages, timeout=120, max_retries=3):
+    if use_gemini:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={next(gemini_key_cycle)}"
+        payload = {
+            "contents": [{"parts": [{"text": msg['content']} for msg in messages]}]
+        }
+
+        for attempt in range(max_retries):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    response = await asyncio.wait_for(
+                        session.post(url, json=payload),
+                        timeout=timeout
+                    )
+                    response_json = await response.json()
+                    
+                    if 'error' in response_json:
+                        error_message = response_json['error'].get('message', 'Неизвестная ошибка')
+                        print(f"Ошибка API Gemini (попытка {attempt + 1}): {error_message}")
+                        
+                        if "Resource has been exhausted" in error_message:
+                            if attempt < max_retries - 1:
+                                print(f"Ожидание 60 секунд перед следующей попыткой...")
+                                await asyncio.sleep(60)
+                                continue
+                        
+                        if attempt == max_retries - 1:
+                            return f"Ошибка API: {error_message}", 0
+                        continue
+                    
+                    if 'candidates' not in response_json:
+                        print(f"Неожиданный формат ответа API Gemini: {response_json}")
+                        if attempt == max_retries - 1:
+                            return "Неожиданный формат ответа API", 0
+                        continue
+                    
+                    content = response_json['candidates'][0]['content']['parts'][0]['text']
+                    tokens_used = len(' '.join(msg['content'] for msg in messages).split()) + len(content.split())
+                    return content, tokens_used
+                
+            except asyncio.TimeoutError:
+                print(f"Timeout: Запрос не выполнен за {timeout} секунд.")
+                if attempt == max_retries - 1:
+                    return "timeout", 0
+            except Exception as e:
+                print(f"Ошибка в запросе к API Gemini: {e}")
+                if attempt == max_retries - 1:
+                    return str(e), 0
+            
+            # Ожидание перед следующей попыткой
+            if attempt < max_retries - 1:
+                await asyncio.sleep(5)
+    else:
+        # Здесь может быть реализована асинхронная версия для OpenAI GPT-4
+        print("Асинхронная версия для OpenAI GPT-4 не реализована")
+        return "Not implemented", 0
+
+
+# async def process_queries(queries):
+#     delay = 60 / gemini_rate_limit  # Задержка между запросами
+#     tasks = []
+#     for query in queries:
+#         task = asyncio.create_task(gpt_query_async(query))
+#         tasks.append(task)
+#         await asyncio.sleep(delay)
+#     return await asyncio.gather(*tasks)
 
 def load_role_description(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -27,57 +129,10 @@ def load_role_description(file_path):
 
 def signal_handler(sig, frame, workbook, filename, verbose=False):
     if verbose:
-        print('You pressed Control+C! Saving and closing the file...')
+        print('Вы нажали Control+C! Сохранение и закрытие файла...')
     workbook.save(filename)
     workbook.close()
     sys.exit(0)
-
-def rate_limiter(max_per_minute):
-    min_interval = 60.0 / max_per_minute
-    last_called = [0.0]
-
-    def decorate(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            elapsed = time.time() - last_called[0]
-            left_to_wait = min_interval - elapsed
-            if left_to_wait > 0:
-                time.sleep(left_to_wait)
-            ret = func(*args, **kwargs)
-            last_called[0] = time.time()
-            return ret
-        return wrapper
-    return decorate
-
-@rate_limiter(gemeni_rate_limit)
-def gpt_query(messages):
-    if use_gemeni:
-        # Gemeni API request
-        model = genai.GenerativeModel('gemini-pro')
-        
-        # Prepare the prompt
-        prompt = f"System: {messages[0]['content']}\nHuman: Analyze the following article:\n\n{messages[1]['content']}"
-        
-        try:
-            response = model.generate_content(prompt)
-            content = response.text
-            tokens_used = len(prompt.split()) + len(content.split())  # Simple token estimation
-            return content, tokens_used
-        except Exception as e:
-            print(f"Error in Gemini API request: {e}")
-            return str(e), 0
-
-    else:
-        # OpenAI GPT-4 API request
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=messages,
-            max_tokens=100,
-            temperature=0.3
-        )
-        content = response.choices[0].message['content']
-        tokens_used = response['usage']['total_tokens']
-        return content, tokens_used
 
 def save_results_to_csv(results, output_filename, verbose=False):
     df = pd.DataFrame(results)
@@ -104,3 +159,23 @@ def clean_linkedin_link(link):
     if "linkedin.com" in link:
         return link.split('?')[0]
     return link
+
+def load_config(config_file):
+    """
+    Загружает конфигурацию из JSON файла.
+    
+    Args:
+        config_file (str): Путь к файлу конфигурации.
+    
+    Returns:
+        dict: Загруженная конфигурация.
+    """
+    try:
+        with open(config_file, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"Файл конфигурации не найден: {config_file}")
+        return {}
+    except json.JSONDecodeError:
+        print(f"Ошибка при чтении файла конфигурации: {config_file}")
+        return {}

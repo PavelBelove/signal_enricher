@@ -1,27 +1,84 @@
-import google.generativeai as genai
-from config.api_keys import api_keys
-import json
+import pandas as pd
+import numpy as np
+import re
 
-# Load the configuration
-with open('config/search_config.json', 'r') as f:
-    config = json.load(f)
+# Загрузка данных
+df = pd.read_csv('ev_data.csv')
 
-gemeni_api_key = api_keys["gemeni_api_key"]
+# Функция для преобразования строковых значений в числовые
+def convert_to_numeric(value):
+    if isinstance(value, str):
+        # Проверяем, есть ли в строке формат "2x1000"
+        match = re.match(r'(\d+)x(\d+)', value)
+        if match:
+            return int(match.group(1)) * int(match.group(2))
+        # Если нет, просто заменяем запятую на точку и преобразуем в float
+        return float(value.replace(',', '.'))
+    return value
 
-# Configure Gemini API
-genai.configure(api_key=gemeni_api_key)
+# Функция для определения количества двигателей
+def count_engines(value):
+    if isinstance(value, str):
+        match = re.match(r'(\d+)x', value)
+        if match:
+            return int(match.group(1))
+    return 1
 
-def test_gemini_api():
-    model = genai.GenerativeModel('gemini-pro')
-    
-    prompt = "Analyze this short text: 'The quick brown fox jumps over the lazy dog.'"
-    
-    print("Sending request to Gemini API...")
-    response = model.generate_content(prompt)
-    print("Response received.")
-    print("Content:", response.text)
-    print("Prompt tokens:", len(prompt.split()))
-    print("Response tokens:", len(response.text.split()))
+# Применение функций ко всем числовым колонкам
+numeric_columns = ['Мощность (Вт)', 'Вольтаж (В)', 'Емкость аккумулятора (Ач)', 
+                   'Макс. скорость (км/ч)', 'Пробег (км)', 'Диаметр колес (дюймы)']
+for col in numeric_columns:
+    df[col] = df[col].apply(convert_to_numeric)
 
-if __name__ == "__main__":
-    test_gemini_api()
+# Добавление столбца с количеством двигателей
+df['Количество двигателей'] = df['Мощность (Вт)'].apply(count_engines)
+
+# Расчет новых показателей
+df['Удельный расход энергии (Вт·ч/км)'] = (df['Емкость аккумулятора (Ач)'] * df['Вольтаж (В)']) / df['Пробег (км)']
+df['Удельная дальность (км/Вт·ч)'] = df['Пробег (км)'] / (df['Емкость аккумулятора (Ач)'] * df['Вольтаж (В)'])
+df['Отношение скорости к мощности (км/ч/Вт)'] = df['Макс. скорость (км/ч)'] / df['Мощность (Вт)']
+df['Удельная мощность на единицу емкости (Вт/Ач)'] = df['Мощность (Вт)'] / df['Емкость аккумулятора (Ач)']
+df['Коэффициент использования напряжения'] = df['Макс. скорость (км/ч)'] / df['Вольтаж (В)']
+
+# Округление результатов для лучшей читаемости
+columns_to_round = ['Удельный расход энергии (Вт·ч/км)', 'Удельная дальность (км/Вт·ч)', 
+                    'Отношение скорости к мощности (км/ч/Вт)', 'Удельная мощность на единицу емкости (Вт/Ач)', 
+                    'Коэффициент использования напряжения']
+df[columns_to_round] = df[columns_to_round].round(4)
+
+# Сохранение обработанных данных в новый CSV файл
+df.to_csv('ev_data_processed.csv', index=False)
+
+print("Данные успешно обработаны и сохранены в файл 'ev_data_processed.csv'")
+
+# Вывод статистики по новым показателям
+print("\nСтатистика по новым показателям:")
+print(df[columns_to_round + ['Количество двигателей']].describe())
+
+# Анализ зависимостей
+print("\nКорреляция между диаметром колес и удельной дальностью:")
+print(df['Диаметр колес (дюймы)'].corr(df['Удельная дальность (км/Вт·ч)']))
+
+print("\nСредний удельный расход энергии по типам покрышек:")
+print(df.groupby('Тип покрышки')['Удельный расход энергии (Вт·ч/км)'].mean())
+
+print("\nСредний удельный расход энергии по типам ТС:")
+print(df.groupby('Тип ТС')['Удельный расход энергии (Вт·ч/км)'].mean())
+
+print("\nКорреляция между мощностью и максимальной скоростью:")
+print(df['Мощность (Вт)'].corr(df['Макс. скорость (км/ч)']))
+
+print("\nСредний удельный расход энергии по типам мотора:")
+print(df.groupby('Тип мотора')['Удельный расход энергии (Вт·ч/км)'].mean())
+
+print("\nКорреляция между емкостью аккумулятора и пробегом:")
+print(df['Емкость аккумулятора (Ач)'].corr(df['Пробег (км)']))
+
+print("\nКорреляция между вольтажом и максимальной скоростью:")
+print(df['Вольтаж (В)'].corr(df['Макс. скорость (км/ч)']))
+
+print("\nКорреляция между удельным расходом энергии и максимальной скоростью:")
+print(df['Удельный расход энергии (Вт·ч/км)'].corr(df['Макс. скорость (км/ч)']))
+
+print("\nСредняя мощность по количеству двигателей:")
+print(df.groupby('Количество двигателей')['Мощность (Вт)'].mean())

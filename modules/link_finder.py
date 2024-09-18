@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 from modules.fetch_data import fetch_xmlstock_search_results
-from modules.link_utils import find_best_link
+from modules.link_utils import find_best_link, validate_linkedin_link
 from modules.bing_search import get_bing_search_results
 
 def load_config():
@@ -33,12 +33,12 @@ def find_link(post_text: str, time_flag: str) -> Optional[str]:
                 results = []
 
             if results:
-                best_link = find_best_link([result['link'] for result in results])
-                if best_link != "N/A":
-                    print(f"Найдена лучшая ссылка через {engine['name']}: {best_link}")
-                    return best_link
-                else:
-                    print(f"Подходящая ссылка не найдена через {engine['name']}")
+                for result in results:
+                    link = result['link']
+                    if validate_linkedin_link(link, post_text):
+                        print(f"Найдена валидная ссылка через {engine['name']}: {link}")
+                        return link
+                print(f"Подходящая ссылка не найдена через {engine['name']}")
             else:
                 print(f"Ссылка не найдена через {engine['name']}")
     
