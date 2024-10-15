@@ -1,84 +1,43 @@
-import pandas as pd
-import numpy as np
-import re
+import time
+import requests
 
-# Загрузка данных
-df = pd.read_csv('ev_data.csv')
+# Импортируем API-ключи из файла
+from config.api_keys import api_keys
 
-# Функция для преобразования строковых значений в числовые
-def convert_to_numeric(value):
-    if isinstance(value, str):
-        # Проверяем, есть ли в строке формат "2x1000"
-        match = re.match(r'(\d+)x(\d+)', value)
-        if match:
-            return int(match.group(1)) * int(match.group(2))
-        # Если нет, просто заменяем запятую на точку и преобразуем в float
-        return float(value.replace(',', '.'))
-    return value
+# API URL, который вы хотите протестировать (замените на нужный вам)
+API_URL = "https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generateText"
 
-# Функция для определения количества двигателей
-def count_engines(value):
-    if isinstance(value, str):
-        match = re.match(r'(\d+)x', value)
-        if match:
-            return int(match.group(1))
-    return 1
+# Параметры запроса (замените на нужные для вашего API)
+data = {
+    "prompt": "Test",
+    "model": "text-bison-001"
+}
 
-# Применение функций ко всем числовым колонкам
-numeric_columns = ['Мощность (Вт)', 'Вольтаж (В)', 'Емкость аккумулятора (Ач)', 
-                   'Макс. скорость (км/ч)', 'Пробег (км)', 'Диаметр колес (дюймы)']
-for col in numeric_columns:
-    df[col] = df[col].apply(convert_to_numeric)
+# Функция для тестирования ключа
+def test_api_key(api_key):
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
 
-# Добавление столбца с количеством двигателей
-df['Количество двигателей'] = df['Мощность (Вт)'].apply(count_engines)
+    try:
+        response = requests.post(API_URL, json=data, headers=headers)
+        if response.status_code == 200:
+            print(f"Ключ {api_key[:10]}... работает: {response.json()}")
+        elif response.status_code == 403:
+            print(f"Ключ {api_key[:10]}... не имеет доступа: {response.json()}")
+        elif response.status_code == 429:
+            print(f"Ключ {api_key[:10]}... превысил лимиты: {response.json()}")
+        else:
+            print(f"Ключ {api_key[:10]}... вызвал ошибку {response.status_code}: {response.json()}")
+    except Exception as e:
+        print(f"Ошибка с ключом {api_key[:10]}...: {str(e)}")
 
-# Расчет новых показателей
-df['Удельный расход энергии (Вт·ч/км)'] = (df['Емкость аккумулятора (Ач)'] * df['Вольтаж (В)']) / df['Пробег (км)']
-df['Удельная дальность (км/Вт·ч)'] = df['Пробег (км)'] / (df['Емкость аккумулятора (Ач)'] * df['Вольтаж (В)'])
-df['Отношение скорости к мощности (км/ч/Вт)'] = df['Макс. скорость (км/ч)'] / df['Мощность (Вт)']
-df['Удельная мощность на единицу емкости (Вт/Ач)'] = df['Мощность (Вт)'] / df['Емкость аккумулятора (Ач)']
-df['Коэффициент использования напряжения'] = df['Макс. скорость (км/ч)'] / df['Вольтаж (В)']
+# Основная функция для тестирования всех ключей
+def test_all_api_keys(api_keys, delay=2):
+    for api_key in api_keys["gemini_api_keys"]:
+        test_api_key(api_key)
+        time.sleep(delay)  # Задержка между запросами для предотвращения превышения лимита
 
-# Округление результатов для лучшей читаемости
-columns_to_round = ['Удельный расход энергии (Вт·ч/км)', 'Удельная дальность (км/Вт·ч)', 
-                    'Отношение скорости к мощности (км/ч/Вт)', 'Удельная мощность на единицу емкости (Вт/Ач)', 
-                    'Коэффициент использования напряжения']
-df[columns_to_round] = df[columns_to_round].round(4)
-
-# Сохранение обработанных данных в новый CSV файл
-df.to_csv('ev_data_processed.csv', index=False)
-
-print("Данные успешно обработаны и сохранены в файл 'ev_data_processed.csv'")
-
-# Вывод статистики по новым показателям
-print("\nСтатистика по новым показателям:")
-print(df[columns_to_round + ['Количество двигателей']].describe())
-
-# Анализ зависимостей
-print("\nКорреляция между диаметром колес и удельной дальностью:")
-print(df['Диаметр колес (дюймы)'].corr(df['Удельная дальность (км/Вт·ч)']))
-
-print("\nСредний удельный расход энергии по типам покрышек:")
-print(df.groupby('Тип покрышки')['Удельный расход энергии (Вт·ч/км)'].mean())
-
-print("\nСредний удельный расход энергии по типам ТС:")
-print(df.groupby('Тип ТС')['Удельный расход энергии (Вт·ч/км)'].mean())
-
-print("\nКорреляция между мощностью и максимальной скоростью:")
-print(df['Мощность (Вт)'].corr(df['Макс. скорость (км/ч)']))
-
-print("\nСредний удельный расход энергии по типам мотора:")
-print(df.groupby('Тип мотора')['Удельный расход энергии (Вт·ч/км)'].mean())
-
-print("\nКорреляция между емкостью аккумулятора и пробегом:")
-print(df['Емкость аккумулятора (Ач)'].corr(df['Пробег (км)']))
-
-print("\nКорреляция между вольтажом и максимальной скоростью:")
-print(df['Вольтаж (В)'].corr(df['Макс. скорость (км/ч)']))
-
-print("\nКорреляция между удельным расходом энергии и максимальной скоростью:")
-print(df['Удельный расход энергии (Вт·ч/км)'].corr(df['Макс. скорость (км/ч)']))
-
-print("\nСредняя мощность по количеству двигателей:")
-print(df.groupby('Количество двигателей')['Мощность (Вт)'].mean())
+if __name__ == "__main__":
+    test_all_api_keys(api_keys, delay=2)

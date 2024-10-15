@@ -7,17 +7,45 @@ import pandas as pd
 import ast
 from modules.fetch_data import fetch_and_save_articles
 from modules.clean_data import clean_data
-from modules.analyse_data import analyse_data
+from modules.analyse_data import run_analyse_data  # Используем run_analyse_data для анализа
 from modules.client_management import get_client_and_date
+from modules.utils import load_config
 
-def load_config(config_file):
-    with open(config_file, 'r') as f:
-        return json.load(f)
+def load_search_queries(roles_dir):
+    """Загрузка поисковых запросов из search_query.json."""
+    with open(os.path.join(roles_dir, 'search_query.json'), 'r') as f:
+        search_queries = json.load(f)
+    queries = search_queries['queries']
+    include = search_queries['include']
+    exclude = search_queries['exclude']
+    return queries, include, exclude
+
+def process_analysis(analysis_str):
+    """Обработка строки анализа данных."""
+    try:
+        analysis_list = ast.literal_eval(analysis_str)
+        if len(analysis_list) >= 6:
+            return analysis_list[0], analysis_list[1], analysis_list[2], analysis_list[3], analysis_list[4], analysis_list[5]
+        else:
+            return analysis_list[0] if len(analysis_list) > 0 else "", \
+                   analysis_list[1] if len(analysis_list) > 1 else 0, \
+                   analysis_list[2] if len(analysis_list) > 2 else "", \
+                   analysis_list[3] if len(analysis_list) > 3 else [], \
+                   analysis_list[4] if len(analysis_list) > 4 else "", \
+                   analysis_list[5] if len(analysis_list) > 5 else ""
+    except:
+        return "", 0, "", [], "", ""
+
+async def export_to_excel(input_file, output_file):
+    """Экспорт данных в Excel."""
+    print(f"Экспорт данных в Excel...")
+    df = pd.read_csv(input_file)
+    df[['Company', 'Signal Strength', 'Time Frame', 'Key Phrases', 'Sales Team Notes', 'News Summary']] = df['analysis'].apply(process_analysis).apply(pd.Series)
+    df.to_excel(output_file, index=False)
+    print(f"Данные успешно экспортированы в {output_file}")
 
 async def fetch_data(client_name, config, queries, include, exclude, verbose, continue_from=None):
-    """
-    Асинхронно получает данные из API xmlstock и парсит статьи.
-    """
+    """Асинхронно получает данные из API xmlstock и парсит статьи."""
     print("Начинаем получение и обработку данных...")
     search_date_str = datetime.now().strftime('%Y-%m-%d')
     current_search_dir = os.path.join('results', client_name, search_date_str)
@@ -42,28 +70,6 @@ async def fetch_data(client_name, config, queries, include, exclude, verbose, co
         print("Статьи не были получены. Файл результатов не был создан или пуст.")
         return False
 
-def process_analysis(analysis_str):
-    try:
-        analysis_list = ast.literal_eval(analysis_str)
-        if len(analysis_list) >= 6:
-            return analysis_list[0], analysis_list[1], analysis_list[2], analysis_list[3], analysis_list[4], analysis_list[5]
-        else:
-            return analysis_list[0] if len(analysis_list) > 0 else "", \
-                   analysis_list[1] if len(analysis_list) > 1 else 0, \
-                   analysis_list[2] if len(analysis_list) > 2 else "", \
-                   analysis_list[3] if len(analysis_list) > 3 else [], \
-                   analysis_list[4] if len(analysis_list) > 4 else "", \
-                   analysis_list[5] if len(analysis_list) > 5 else ""
-    except:
-        return "", 0, "", [], "", ""
-
-async def export_to_excel(input_file, output_file):
-    print(f"Экспорт данных в Excel...")
-    df = pd.read_csv(input_file)
-    df[['Company', 'Signal Strength', 'Time Frame', 'Key Phrases', 'Sales Team Notes', 'News Summary']] = df['analysis'].apply(process_analysis).apply(pd.Series)
-    df.to_excel(output_file, index=False)
-    print(f"Данные успешно экспортированы в {output_file}")
-
 async def main_async():
     """Асинхронная основная функция программы."""
     parser = argparse.ArgumentParser(description="Signal Enricher")
@@ -83,11 +89,7 @@ async def main_async():
         search_date_str = search_date.strftime('%Y-%m-%d')
 
         roles_dir = os.path.join('results', client_name, 'roles')
-        with open(os.path.join(roles_dir, 'search_query.json'), 'r') as f:
-            search_queries = json.load(f)
-        queries = search_queries['queries']
-        include = search_queries['include']
-        exclude = search_queries['exclude']
+        queries, include, exclude = load_search_queries(roles_dir)
 
         config = load_config('config/search_config.json')
         verbose = config.get('verbose', False)
@@ -131,7 +133,7 @@ async def main_async():
         analysed_file = os.path.join('results', client_name, search_date_str, 'search_results_analysed.csv')
         if (args.analyze or not (args.fetch or args.clean)) and (data_fetched or os.path.exists(cleaned_file)):
             print("Начинаем анализ данных...")
-            await analyse_data(cleaned_file, analysed_file, os.path.join('results', client_name, 'roles'))
+            await run_analyse_data(cleaned_file, analysed_file, roles_dir, config)
             print("Анализ данных завершен.")
             
             # Экспорт в Excel

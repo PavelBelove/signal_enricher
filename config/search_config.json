@@ -1,9 +1,17 @@
 {
-  "days": 30,
+    "provider": "openai",           
+    "model": "gpt-4o-mini",               
+    "max_retries": 5,                
+    "retry_delay": 2,                
+    "timeout": 60,                   
+    "max_tokens": 1500,              
+    "temperature": 0.7,              
+    "top_p": 0.9,                    
+    "rate_limit": 20,                
+    "rate_limit_period": 60,        
+  "days": 7,
   "num_results": 100,
-  "num_pages": 5,
-  "use_gemeni": true,
-  "gemeni_rate_limit": 1,
+  "num_pages": 2,
   "exclude_pdf": true,
   "sites": [
     ""
@@ -12,11 +20,11 @@
     {
       "name": "xmlsearch",
       "enabled": true,
-      "domain": "178",
+      "domain": "",
       "tbm": "",
       "hl": "",
       "device": "",
-      "lr": "2246"
+      "lr": ""
     },
     {
       "name": "bing",

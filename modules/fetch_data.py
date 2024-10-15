@@ -27,7 +27,9 @@ async def fetch_xmlstock_search_results(query, include, exclude, config, verbose
     """
     results = []
     
-    full_query = f"{query} {include}"
+    full_query = query
+    if include:
+        full_query += f" {include}"
     if exclude:
         full_query += f" {exclude}"
     
@@ -74,20 +76,22 @@ async def fetch_xmlstock_search_results(query, include, exclude, config, verbose
                             continue
 
                         content = await response.text()
+                        # print(f"content {content}")
                         root = ET.fromstring(content)
                         for group in root.findall('.//group'):
                             for doc in group.findall('doc'):
+                                
                                 pub_date = doc.find('pubDate').text if doc.find('pubDate') is not None else "N/A"
                                 pub_date_dt = parse_date(pub_date) if pub_date != "N/A" else None
-                                if config['days'] is False or (pub_date_dt is not None and pub_date_dt >= (datetime.now() - timedelta(days=config['days']))):
-                                    result = {
-                                        'title': doc.find('title').text if doc.find('title') is not None else "N/A",
-                                        'link': doc.find('url').text if doc.find('url') is not None else "N/A",
-                                        'pubDate': pub_date
-                                    }
-                                    results.append(result)
-                                    if len(results) >= config['num_results']:
-                                        return results[:config['num_results']]
+                                # if config['days'] is False or (pub_date_dt is not None and pub_date_dt >= (datetime.now() - timedelta(days=config['days']))):
+                                result = {
+                                    'title': doc.find('title').text if doc.find('title') is not None else "N/A",
+                                    'link': doc.find('url').text if doc.find('url') is not None else "N/A",
+                                    'pubDate': pub_date
+                                }
+                                results.append(result)
+                                if len(results) >= config['num_results']:
+                                    return results[:config['num_results']]
                     
                     if verbose:
                         print(f"Получено результатов: {len(results)}")

@@ -101,8 +101,8 @@ def create_excel(data, output_file):
     df.to_excel(output_file, index=False, engine='openpyxl')
 
 if __name__ == "__main__":
-    input_file = "scripts/companies1.txt"  # Укажите путь к вашему входному файлу
-    output_file = "scripts/companies_data_08_15_09.xlsx"  # Укажите желаемое имя для выходного файла Excel
+    input_file = "scripts/companies.txt"  # Укажите путь к вашему входному файлу
+    output_file = "scripts/companies_data.xlsx"  # Укажите желаемое имя для выходного файла Excel
 
     data = parse_company_data(input_file)
     create_excel(data, output_file)

@@ -1,35 +1,40 @@
-# Файл: ./modules/fetch_company_data.py
-
 import pandas as pd
 import asyncio
 import csv
 import os
+import logging
 from modules.fetch_data import fetch_xmlstock_search_results, process_search_results
 from modules.utils import clean_domain
 
+MAX_CONCURRENT_REQUESTS = 20  # Максимальное количество одновременно выполняемых запросов
+semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
+
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s [%(levelname)s] %(message)s',
+        handlers=[logging.StreamHandler()]
+    )
+
 async def fetch_company_data(input_file, output_file, config):
-    """
-    Получает данные о компаниях из входного Excel файла, проводит поиск и сохраняет результаты в новый CSV файл.
-    """
     try:
-        # Пробуем разные способы чтения файла
+        # Пробуем загрузить данные из входного файла
         try:
             df = pd.read_excel(input_file, engine='openpyxl')
-        except:
+            logging.info(f"Успешно загружено {len(df)} строк из Excel файла.")
+        except Exception:
             try:
                 df = pd.read_csv(input_file, encoding='utf-8')
-            except:
+                logging.info(f"Успешно загружено {len(df)} строк из CSV файла с кодировкой utf-8.")
+            except Exception:
                 df = pd.read_csv(input_file, encoding='latin1')
+                logging.info(f"Успешно загружено {len(df)} строк из CSV файла с кодировкой latin1.")
         
-        print(f"Успешно загружено {len(df)} строк из входного файла.")
-        print(f"Колонки: {df.columns.tolist()}")
+        logging.info(f"Колонки входного файла: {df.columns.tolist()}")
     except Exception as e:
-        print(f"Ошибка при чтении входного файла: {str(e)}")
+        logging.error(f"Ошибка при чтении входного файла: {str(e)}")
         return
 
-    results = []
-
-    # Получение параметров из конфигурации
     search_column = config['search_column']
     search_queries = config['search_queries']
     use_domain = config.get('use_domain', False)
@@ -39,28 +44,26 @@ async def fetch_company_data(input_file, output_file, config):
     required_columns = [company_name_column, search_column, 'Organization description']
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        raise ValueError(f"В входном файле отсутствуют следующие колонки: {', '.join(missing_columns)}")
+        logging.error(f"В входном файле отсутствуют следующие колонки: {', '.join(missing_columns)}")
+        raise ValueError(f"В входном файле отсутствуют необходимые колонки: {', '.join(missing_columns)}")
 
-    # Функция для сохранения промежуточных результатов
+    results = []
+
+    # Функция для сохранения результатов
     def save_results(results, output_file, mode='w'):
         df_results = pd.DataFrame(results)
-        if 'Organization description' in df_results.columns:
-            df_results = df_results.rename(columns={'Organization description': 'description'})
-        df_results.to_csv(output_file, mode=mode, index=False, encoding='utf-8', quoting=csv.QUOTE_ALL)
-        print(f"Результаты сохранены в {output_file}")
+        df_results.to_csv(output_file, mode=mode, index=False, encoding='utf-8-sig', quoting=csv.QUOTE_ALL)
+        logging.info(f"Данные сохранены в файл {output_file}")
 
-    companies_processed = 0
-
-    for index, row in df.iterrows():
+    # Асинхронная функция для обработки компании
+    async def process_company(index, row):
         company_name = row[company_name_column]
         search_value = row[search_column]
 
-        # Проверка на NaN значения
         if pd.isna(search_value):
-            print(f"Пропуск компании {company_name}: отсутствует значение для поиска")
-            continue
+            logging.info(f"Пропуск компании '{company_name}': отсутствует значение для поиска.")
+            return []
 
-        # Очистка домена, если используется поиск по сайту
         if use_domain:
             search_value = clean_domain(str(search_value))
             search_prefix = f"site:{search_value}"
@@ -69,44 +72,37 @@ async def fetch_company_data(input_file, output_file, config):
 
         company_results = []
 
-        # Выполнение поиска для каждого запроса
         for query in search_queries:
             full_query = f"{search_prefix} {query}"
-            print(f"Поиск для компании {company_name}: {full_query}")
+            logging.info(f"Выполняется запрос для компании '{company_name}': '{full_query}'")
 
-            # Получение результатов поиска
-            search_results = await fetch_xmlstock_search_results(full_query, "", "", config)
-            if search_results:
-                # Обработка найденных статей
-                articles = await process_search_results(search_results)
-                for article in articles:
-                    result = row.to_dict()  # Копируем все данные из исходной строки
-                    result.update({
-                        'company_name': company_name,
-                        'search_query': full_query,
-                        'title': article['title'],
-                        'link': article['article_url'],
-                        'found_text': article['text'][:1000],  # Берем первые 1000 символов текста
-                        'description': article['text']  # Сохраняем полный текст статьи
-                    })
-                    company_results.append(result)
-                    
-                    print(f"\nРезультаты парсинга для {company_name}:")
-                    print(f"Заголовок: {article['title']}")
-                    print(f"Ссылка: {article['article_url']}")
-                    print(f"Первые 1000 символов текста: {article['text'][:1000]}")
-                    print("-" * 50)
-                    
-                    break  # Берем только первый результат для каждого запроса
+            async with semaphore:
+                search_results = await fetch_xmlstock_search_results(full_query, "", "", config)
+                if search_results:
+                    logging.info(f"Результаты запроса: {search_results}")
+                else:
+                    logging.info(f"Запрос не дал результатов для: {full_query}")
 
-            # Задержка между запросами
+                if search_results:
+                    articles = await process_search_results(search_results)
+                    if articles:
+                        article = articles[0]  # Берем только первый результат для каждого запроса
+                        result = row.to_dict()
+                        result.update({
+                            'company_name': company_name,
+                            'search_query': full_query,
+                            'title': article.get('title', ''),
+                            'link': article.get('article_url', ''),
+                            'found_text': article.get('text', '')[:1000],
+                            'description': article.get('text', '')[:5000]
+                        })
+                        company_results.append(result)
+                        logging.info(f"Результаты для компании '{company_name}': {result}")
+                        break
+
             await asyncio.sleep(config.get('delay_between_queries', 1))
 
-        # Если найдены результаты для компании, добавляем их в общий список
-        if company_results:
-            results.extend(company_results)
-        else:
-            # Если результатов нет, добавляем строку с пустым found_text
+        if not company_results:
             result = row.to_dict()
             result.update({
                 'company_name': company_name,
@@ -116,21 +112,30 @@ async def fetch_company_data(input_file, output_file, config):
                 'found_text': '',
                 'description': ''
             })
-            results.append(result)
+            company_results.append(result)
 
-        companies_processed += 1
+        return company_results
 
-        # Сохранение промежуточных результатов каждые 10 обработанных компаний
-        if companies_processed % 10 == 0:
-            save_results(results, output_file, mode='a' if companies_processed > 10 else 'w')
-            results = []  # Очищаем список результатов после сохранения
+    # Обработка компаний асинхронно
+    tasks = [process_company(index, row) for index, row in df.iterrows()]
+    for task_batch in asyncio.as_completed(tasks, timeout=60):
+        try:
+            company_results = await task_batch
+            results.extend(company_results)
+
+            # Сохраняем промежуточные результаты
+            if len(results) >= 10:
+                save_results(results, output_file, mode='a')
+                results.clear()
+        except asyncio.TimeoutError:
+            logging.error(f"Таймаут для одной из компаний")
 
     # Сохранение оставшихся результатов
     if results:
-        save_results(results, output_file, mode='a' if companies_processed > 10 else 'w')
+        save_results(results, output_file, mode='a')
 
-    print(f"Обработка завершена. Всего обработано компаний: {companies_processed}")
+    logging.info(f"Обработка завершена.")
 
-# Функция-обертка для запуска асинхронной функции
 def run_fetch_company_data(input_file, output_file, config):
+    setup_logging()
     asyncio.run(fetch_company_data(input_file, output_file, config))
